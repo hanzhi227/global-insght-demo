@@ -1,0 +1,14 @@
+# Local credentials; only the template is tracked.
+.env
+.env.*
+!.env.example
+
+node_modules/
+.next/
+out/
+coverage/
+*.tsbuildinfo
+.DS_Store
+.pi/subagents/
+.impeccable/review/
+.impeccable/mocks/

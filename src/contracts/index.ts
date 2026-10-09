@@ -1,0 +1,21 @@
+import { z } from 'zod';
+
+export const categories = ['safety', 'maintenance', 'quality'] as const;
+export const categorySchema = z.enum(categories);
+export type Category = z.infer<typeof categorySchema>;
+export const categoryLabels: Record<Category, string> = { safety: 'Safety', maintenance: 'Maintenance', quality: 'Quality' };
+export const MAX_FILE_BYTES = 1024 * 1024;
+export const MAX_DOCUMENTS = 5;
+export const MAX_CHUNKS = 256;
+export const askRequestSchema = z.object({ question: z.string().trim().min(1).max(1000) }).strict();
+export type AskRequest = z.infer<typeof askRequestSchema>;
+export const documentSchema = z.object({ id: z.string().uuid(), name: z.string().min(1).max(180), category: categorySchema, chunkCount: z.number().int().min(1).max(MAX_CHUNKS) });
+export type DocumentSummary = z.infer<typeof documentSchema>;
+export const passageSchema = z.object({ id: z.string().uuid(), documentId: z.string().uuid(), documentName: z.string().min(1).max(180), category: categorySchema, startLine: z.number().int().positive(), endLine: z.number().int().positive(), excerpt: z.string().min(1).max(3200) });
+export type Passage = z.infer<typeof passageSchema>;
+export const askResponseSchema = z.object({ requestId: z.string().uuid(), status: z.enum(['answered', 'needs_clarification', 'insufficient_evidence', 'blocked', 'out_of_scope']), answer: z.string().min(1).max(1500), categories: z.array(categorySchema).max(3), citations: z.array(passageSchema).max(6) });
+export type AskResponse = z.infer<typeof askResponseSchema>;
+export type ApiError = { requestId: string; error: { code: string; message: string; retryable: boolean } };
+export type RouteDecision = { kind: 'retrieve'; categories: Category[] } | { kind: 'clarify' } | { kind: 'out_of_scope' };
+export type ModelDraft = { status: 'answered' | 'insufficient_evidence' | 'needs_clarification'; answer: string; citationIds: string[] };
+export const draftSchema = z.object({ status: z.enum(['answered', 'insufficient_evidence', 'needs_clarification']), answer: z.string().min(1).max(1000), citationIds: z.array(z.string().uuid()).max(3) }).strict();
