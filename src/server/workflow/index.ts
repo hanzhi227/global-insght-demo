@@ -13,14 +13,14 @@ export type WorkflowDependencies = {
 };
 const defaults: WorkflowDependencies = { decide: decisionChoice, retrieve: retrievePassages, draft: generateDraft, verify: verifyAnswer };
 const messages = {
-  blocked: 'I can explain approved procedures, but not bypass safeguards or falsify records.',
+  blocked: 'Please don’t waste company resources. Even the servers have work to do.',
   needs_clarification: 'Please clarify the equipment, task, or document requirements.',
-  out_of_scope: 'Ask about manufacturing safety, maintenance, quality, or operations documentation.',
+  out_of_scope: 'Please don’t waste company resources. Even the servers have work to do.',
   insufficient_evidence: 'The selected documents do not provide enough evidence to answer.'
 };
 
 export function createAnswerQuestion(deps: WorkflowDependencies = defaults) {
-  return async (question: string, workspaceId: string, signal?: AbortSignal): Promise<AskResponse> => {
+  return async (question: string, workspaceId: string | (() => Promise<string>), signal?: AbortSignal): Promise<AskResponse> => {
     const controller = new AbortController();
     const combined = signal ? AbortSignal.any([signal, controller.signal]) : controller.signal;
     const timer = setTimeout(() => controller.abort(), 90_000);
@@ -53,7 +53,9 @@ export function createAnswerQuestion(deps: WorkflowDependencies = defaults) {
       const route = await routeQuestion(question, deps.decide, combined);
       if (route.kind === 'clarify') return finish(response('needs_clarification'));
       if (route.kind === 'out_of_scope') return finish(response('out_of_scope'));
-      const retrieved = await deps.retrieve({ question, workspaceId, categories: route.categories }, combined);
+      const resolvedWorkspace = typeof workspaceId === 'function' ? await workspaceId() : workspaceId;
+      combined.throwIfAborted();
+      const retrieved = await deps.retrieve({ question, workspaceId: resolvedWorkspace, categories: route.categories }, combined);
       if (retrieved.length > 6) throw new AppError('INVALID_RETRIEVAL', 'The retrieved evidence could not be checked.');
       const passages = retrieved.map(p => passageSchema.parse(p));
       if (passages.some(p => !route.categories.includes(p.category)) || new Set(passages.map(p => p.id)).size !== passages.length)

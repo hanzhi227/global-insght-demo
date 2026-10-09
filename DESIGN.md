@@ -145,6 +145,10 @@ components:
 
 # Design System: Plant Documentation Assistant
 
+## Q&A-only amendment
+
+The current user-approved main surface is one centered reading sheet, up to 960px wide, with Q&A and browser-saved turns. The document catalog/upload column is deprecated and absent from the main page. Preserve the existing brand bar, fonts, ink controls, source excerpts, category chips, and solid/dashed answer rules. History is chronological above the composer; each question stays paired with its response and has collapsible source citations. Clear history is secondary and confirmed, loading/storage errors are visible, and programmatically focused results retain a visible focus ring. This supersedes the historical two-column layout below, not the incumbent visual world. Admin upload UI is deferred until real authentication exists.
+
 ## Overview
 
 **Creative North Star: "The Shadow Board"**

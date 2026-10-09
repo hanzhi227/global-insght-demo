@@ -129,13 +129,11 @@ body {
   font-size: 1rem;
 }
 
-/* Workspace: board on the left, reading sheet on the right */
+/* One reading sheet for questions and saved answers. */
 
 .workspace {
-  display: grid;
-  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
-  gap: 32px;
-  align-items: start;
+  max-width: 960px;
+  margin-inline: auto;
   padding-bottom: 56px;
 }
 
@@ -155,11 +153,40 @@ body {
   line-height: 1.2;
 }
 
-/* The reading sheet starts level with the upload sheet, below the board title */
-
 .questions {
-  margin-top: 2.35rem;
+  margin-top: 0;
 }
+
+.chat-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.chat-heading .panel-title { margin: 0; }
+
+.chat-history {
+  list-style: none;
+  padding: 0;
+  margin: 24px 0;
+}
+
+.chat-turn { margin-bottom: 32px; }
+
+.chat-question {
+  margin: 0;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+.chat-question strong {
+  display: block;
+  margin-bottom: 6px;
+}
+
+.chat-turn .result { margin-top: 12px; }
 
 /* Board: the documents panel has no sheet of its own. Its upload form sits on
    a white sheet; its categories are painted outlines on the board. */
@@ -509,8 +536,9 @@ textarea::placeholder {
   border-top-style: dashed;
 }
 
-.result:focus {
-  outline: none;
+.result:focus-visible {
+  outline: 3px solid var(--focus);
+  outline-offset: 4px;
 }
 
 .answer-head {
@@ -598,6 +626,12 @@ textarea::placeholder {
   margin: 0;
 }
 
+.notice-warn {
+  border-color: var(--warn-line);
+  background: var(--warn-wash);
+  color: var(--warn-ink);
+}
+
 /* Sources: exact excerpts with real line numbers */
 
 .sources {
@@ -605,6 +639,7 @@ textarea::placeholder {
 }
 
 .sources-title {
+  cursor: pointer;
   margin: 0 0 10px;
   font-family: var(--display);
   font-size: 1.1875rem;
@@ -681,15 +716,6 @@ textarea::placeholder {
   padding: 0 14px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
-}
-
-/* Narrow screens: the board stacks above the sheet, in reading order */
-
-@media (max-width: 860px) {
-  .workspace {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 24px;
-  }
 }
 
 @media (max-width: 480px) {

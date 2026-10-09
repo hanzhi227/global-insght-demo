@@ -21,9 +21,26 @@ bun run seed:corpus --verify  # runtime token; read-only corpus verification
 bun run dev
 ```
 
-Ask a question; no uploads are needed or allowed. `POST /api/documents` returns 405 even if called directly. Listing and questions use only the operator's shared corpus, never old browser-uploaded documents. The runtime store exposes read operations only.
+The main screen is Q&A only; document administration is CLI-only until authenticated admins exist. Ask a question; no uploads are needed or allowed. `POST /api/documents` returns 405 even if called directly. Listing and questions use only the operator's shared corpus, never old browser-uploaded documents. The runtime store exposes read operations only.
 
 Startup/build never seeds documents. `/api/health`, document listing, and questions fail closed until all 12 documents of the expected corpus version are indexed. Existing unrelated vectors are left untouched.
+
+## Browser chat history
+
+Completed question/answer pairs and citations are saved in `localStorage` on this browser, capped at the latest 30 turns. There is no chat database, server file-history dependency, or account synchronization. Clear history asks for confirmation and removes the browser copy. Corrupt/unavailable storage is reported without overwriting it or losing the current answer. Questions remain independent; saved turns are not sent back as LLM context. Saved answers may become stale after corpus changes. Anyone using the same browser profile can see these chats.
+
+The legacy server history endpoint returns 410 and the ask/health routes do not read or write server history files. Previously created server history files are left untouched.
+
+## Seed token troubleshooting
+
+`CONFIGURATION_MISSING` means the write token is absent; `CORPUS_NOT_READY` means the selected source version has not been completely seeded. Verification does not create documents. Prefer a dedicated `ZILLIZ_SEED_TOKEN`. For a local operator run, if your existing `ZILLIZ_TOKEN` already has write permissions, explicitly opt in:
+
+```sh
+bun run seed:corpus --use-runtime-token
+bun run seed:corpus --verify
+```
+
+This override exists only in the operator CLI. There is no automatic token fallback or public write endpoint. Deploy a query-only runtime token. HTTPS Zilliz endpoints are normalized to explicit port 443 to avoid the SDK's misleading default-port warning.
 
 ## Source of truth and updates
 

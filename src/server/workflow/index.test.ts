@@ -45,7 +45,7 @@ describe('answerQuestion checked workflow', () => {
     const f = fixture(); f.deps.draft = async () => ({ status: 'answered', answer: 'Wrong', citationIds: [] });
     await expect(f.ask()).rejects.toMatchObject({ code: 'INVALID_CITATIONS' });
   });
-  test('input block stops routing', async () => { const f = fixture(['block']); expect((await f.ask()).status).toBe('blocked'); expect(f.states).toHaveLength(1); });
+  test('input block stops routing', async () => { const f = fixture(['block']); const result = await f.ask(); expect(result.status).toBe('blocked'); expect(result.answer).toBe('Please don’t waste company resources. Even the servers have work to do.'); expect(f.states).toHaveLength(1); });
   test('output block hides draft and citations', async () => { const result = await fixture(['allow', 'safety', 'block']).ask(); expect(result.status).toBe('blocked'); expect(result.citations).toEqual([]); });
   test('provider outage fails closed', async () => { const f = fixture(); f.deps.decide = async () => { throw Error('offline'); }; await expect(f.ask()).rejects.toMatchObject({ code: 'WORKFLOW_FAILED' }); });
   test('multibyte input is rejected without decision calls', async () => { const f = fixture(); await expect(createAnswerQuestion(f.deps)('界'.repeat(501), 'workspace')).rejects.toMatchObject({ code: 'DECISION_INPUT_LIMIT' }); expect(f.states).toEqual([]); });
@@ -70,8 +70,8 @@ describe('answerQuestion checked workflow', () => {
     const f = fixture(['out_of_scope']);
     f.deps.retrieve = async () => { throw Error('must not retrieve'); };
     f.deps.verify = async () => { throw Error('must not verify'); };
-    const result = await createAnswerQuestion(f.deps)('How do I make a cheese sandwich?', 'workspace');
-    expect(result.status).toBe('out_of_scope'); expect(result.citations).toEqual([]); expect(f.states).toHaveLength(1);
+    const result = await createAnswerQuestion(f.deps)('How do I make a cheese sandwich?', async () => { throw Error('must not load vector corpus'); });
+    expect(result.status).toBe('out_of_scope'); expect(result.answer).toBe('Please don’t waste company resources. Even the servers have work to do.'); expect(result.citations).toEqual([]); expect(f.states).toHaveLength(1);
   });
   test('unsupported answer is replaced by abstention without exposing its text or citations', async () => {
     const f = fixture(); f.deps.verify = async (question, answer, evidence) => {

@@ -21,7 +21,7 @@ export async function POST(request: Request) {
     const parsed = askRequestSchema.safeParse(body);
     if (!parsed.success) throw new AppError('INVALID_QUESTION', 'Enter a question of 1–1,000 characters.', 400, false);
     const signal = AbortSignal.any([request.signal, AbortSignal.timeout(90_000)]);
-    const response = await answerQuestion(parsed.data.question, await curatedWorkspace(signal), signal);
-    return jsonResponse({ ...response, requestId }, 200, cookie);
+    const response = { ...await answerQuestion(parsed.data.question, () => curatedWorkspace(signal), signal), requestId };
+    return jsonResponse(response, 200, cookie);
   } catch (error) { return errorResponse(error, requestId, cookie); }
 }

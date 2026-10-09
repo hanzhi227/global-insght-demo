@@ -1,15 +1,18 @@
 import { getCuratedCorpus, curatedDocuments, seedCorpus } from '../src/server/corpus';
 import { requiredEnv } from '../src/server/config';
+import { seedToken } from '../src/server/seed-credentials';
 import { AppError } from '../src/server/errors';
 import { createMilvusClient, collectionName, MilvusVectorStore, assertSearchReady } from '../src/server/retrieval/vector-store';
 
 const args = process.argv.slice(2);
-if (args.some(arg => arg !== '--verify') || args.length > 1) { console.error('Usage: bun run seed:corpus [--verify]'); process.exit(1); }
+if (args.some(arg => !['--verify', '--use-runtime-token'].includes(arg)) || args.length > 1) { console.error('Usage: bun run seed:corpus [--verify | --use-runtime-token]'); process.exit(1); }
 const verify = args.includes('--verify');
+const useRuntimeToken = args.includes('--use-runtime-token');
 let client: ReturnType<typeof createMilvusClient> | undefined;
 try {
-  if (!verify && !process.env.ZILLIZ_SEED_TOKEN?.trim()) throw new AppError('CONFIGURATION_MISSING', 'Set ZILLIZ_SEED_TOKEN for operator seeding; the app token is never reused for writes.', 503, false);
-  client = createMilvusClient(requiredEnv(verify ? 'ZILLIZ_TOKEN' : 'ZILLIZ_SEED_TOKEN'));
+  const token = verify ? requiredEnv('ZILLIZ_TOKEN') : seedToken(useRuntimeToken);
+  if (useRuntimeToken) console.log('Using the runtime token for this explicit operator run. It must have write permissions; deploy a query-only runtime token.');
+  client = createMilvusClient(token);
   const store = new MilvusVectorStore(client, collectionName());
   await store.info();
   await assertSearchReady(client, collectionName());

@@ -78,8 +78,14 @@ export function validateCollection(description: DescribeCollectionResponse, expe
  return { dimension, strategy: 'dense' };
 }
 
+export function milvusAddress(endpoint: string): string {
+ if (!endpoint.startsWith('https://')) return endpoint;
+ const url = new URL(endpoint);
+ if (url.username || url.password || url.search || url.hash || url.pathname !== '/') throw new AppError('INVALID_VECTOR_ENDPOINT', 'Set a Zilliz endpoint without credentials, query parameters or paths.', 503, false);
+ return `https://${url.hostname}:${url.port || '443'}`;
+}
 export function createMilvusClient(token = requiredEnv('ZILLIZ_TOKEN')): MilvusClient {
- return new MilvusClient({ address: requiredEnv('ZILLIZ_ENDPOINT'), token, timeout: 20_000, maxRetries: 1, logLevel: 'error' });
+ return new MilvusClient({ address: milvusAddress(requiredEnv('ZILLIZ_ENDPOINT')), token, timeout: 20_000, maxRetries: 1, logLevel: 'error' });
 }
 export function collectionName(): string {
  const name = process.env.ZILLIZ_COLLECTION?.trim() || 'document_chunks_v1';

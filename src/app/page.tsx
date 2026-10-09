@@ -1,5 +1,4 @@
 import Image from 'next/image';
-import { DocumentPanel } from '@/components/document-panel';
 import { QuestionPanel } from '@/components/question-panel';
 
 export default function Page() {
@@ -27,11 +26,10 @@ export default function Page() {
 
       <main className="container">
         <p className="demo-notice" role="note">
-          Demo only. Use fictional documents; answers are not approved for plant operations.
+          Demo only. Documents are fictional; answers are not approved for plant operations.
         </p>
 
         <div className="workspace">
-          <DocumentPanel />
           <QuestionPanel />
         </div>
       </main>

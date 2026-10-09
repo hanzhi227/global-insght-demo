@@ -59,7 +59,11 @@ test('HTTP listing and questions use the same complete corpus for different visi
   const store = localStore();
   await seedCorpus(store, corpus, embed);
   const readStore = spyOn(vectorStore, 'getVectorStore').mockReturnValue(store);
-  const answer = spyOn(workflow, 'answerQuestion').mockImplementation(async () => ({ requestId: crypto.randomUUID(), status: 'insufficient_evidence', answer: 'Missing evidence.', categories: [], citations: [] }));
+  const askedWorkspaces: string[] = [];
+  const answer = spyOn(workflow, 'answerQuestion').mockImplementation(async (_question, workspace) => {
+    askedWorkspaces.push(typeof workspace === 'function' ? await workspace() : workspace);
+    return { requestId: crypto.randomUUID(), status: 'insufficient_evidence', answer: 'Missing evidence.', categories: [], citations: [] };
+  });
   const previous = { secret: process.env.SESSION_SIGNING_SECRET, origin: process.env.APP_ORIGIN };
   process.env.SESSION_SIGNING_SECRET = 'test-secret-long-enough-for-cookie-signing'; process.env.APP_ORIGIN = 'http://localhost:3000';
   try {
@@ -72,12 +76,12 @@ test('HTTP listing and questions use the same complete corpus for different visi
       const question = await ask(new Request('http://localhost:3000/api/ask', { method: 'POST', headers: { origin: 'http://localhost:3000', cookie: response.headers.get('set-cookie')!.split(';')[0], 'content-type': 'application/json' }, body: JSON.stringify({ question: 'What isolation is required?' }) }));
       expect(question.status).toBe(200);
     }
-    expect(answer.mock.calls.map(call => call[1])).toEqual([corpus.workspaceId, corpus.workspaceId]);
+    expect(askedWorkspaces).toEqual([corpus.workspaceId, corpus.workspaceId]);
     await store.deleteDocument(corpus.workspaceId, (await store.queryChunks(corpus.workspaceId))[0].documentId);
     expect((await list(new Request('http://localhost:3000/api/documents'))).status).toBe(503);
     const unavailable = await ask(new Request('http://localhost:3000/api/ask', { method: 'POST', headers: { origin: 'http://localhost:3000', 'content-type': 'application/json' }, body: JSON.stringify({ question: 'What isolation is required?' }) }));
     expect(unavailable.status).toBe(503);
-    expect(answer).toHaveBeenCalledTimes(2);
+    expect(answer).toHaveBeenCalledTimes(3);
   } finally {
     readStore.mockRestore(); answer.mockRestore();
     if (previous.secret === undefined) delete process.env.SESSION_SIGNING_SECRET; else process.env.SESSION_SIGNING_SECRET = previous.secret;
