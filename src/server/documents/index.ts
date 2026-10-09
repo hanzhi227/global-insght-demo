@@ -33,7 +33,7 @@ export function createDocumentService(store: VectorStore, embed: typeof embedTex
    return serialized(input.workspaceId, async () => {
     signal?.throwIfAborted();
     const existing = await store.queryChunks(input.workspaceId);
-    if (new Set(existing.map(r => r.documentId)).size >= MAX_DOCUMENTS) throw new AppError('DOCUMENT_LIMIT', 'This workspace already contains five documents.', 409, false);
+    if (new Set(existing.map(r => r.documentId)).size >= MAX_DOCUMENTS) throw new AppError('DOCUMENT_LIMIT', `This workspace already contains ${MAX_DOCUMENTS} documents.`, 409, false);
     const documentId = crypto.randomUUID(); const rows: InsertChunk[] = [];
     try {
      for (let i = 0; i < chunks.length; i += 16) {

@@ -33,7 +33,7 @@ export function validateWorkspace(workspaceId: string): void {
 export function workspaceFilter(workspaceId: string, documentIds?: string[]): string {
  validateWorkspace(workspaceId);
  if (documentIds !== undefined && (!documentIds.length || documentIds.length > MAX_DOCUMENTS || new Set(documentIds).size !== documentIds.length || documentIds.some(id => !uuid.safeParse(id).success))) {
-  throw new AppError('INVALID_DOCUMENT_SELECTION', 'Select one to five valid documents.', 400, false);
+  throw new AppError('INVALID_DOCUMENT_SELECTION', `Select one to ${MAX_DOCUMENTS} valid documents.`, 400, false);
  }
  return `workspaceId == ${JSON.stringify(workspaceId)}` + (documentIds ? ` and documentId in ${JSON.stringify(documentIds)}` : '');
 }

@@ -18,7 +18,7 @@ describe('answerQuestion checked workflow', () => {
     expect(result.status).toBe('answered'); expect(result.citations).toEqual([safety]);
     expect(JSON.parse(f.states[2]).citations[0].excerpt).toBe(safety.excerpt);
   });
-  for (const [choice, passages] of [['maintenance', [maintenance]], ['safety_maintenance', [safety, maintenance]], ['all', [safety, maintenance, { ...safety, id: '44444444-4444-4444-8444-444444444444', category: 'quality' }]]] as const) {
+  for (const [choice, passages] of [['maintenance', [maintenance]], ['safety_maintenance', [safety, maintenance]], ['all', [safety, maintenance, { ...safety, id: '44444444-4444-4444-8444-444444444444', category: 'quality' }, { ...safety, id: '55555555-5555-4555-8555-555555555555', category: 'operations' }]]] as const) {
     test(`decision route ${choice}`, async () => { expect((await fixture(['allow', choice, 'allow'], [...passages]).ask()).status).toBe('answered'); });
   }
   for (const choice of ['safety_quality', 'maintenance_quality']) test(`multi-category route ${choice} preserves labels`, async () => {

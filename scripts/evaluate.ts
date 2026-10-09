@@ -1,4 +1,5 @@
-import { askResponseSchema, type Category } from '../src/contracts';
+import { askResponseSchema } from '../src/contracts';
+import { loadCorpus } from '../evals/corpus';
 import { cases } from '../evals/cases';
 
 const base = (process.env.EVAL_BASE_URL ?? 'http://localhost:3000').replace(/\/$/, '');
@@ -16,11 +17,13 @@ try {
   if (!initial.ok) throw new Error('Workspace setup failed.');
   const initialDocs = await initial.json();
   if (initialDocs.documents.length) throw new Error('Evaluation requires a disposable empty workspace.');
-  for (const category of ['safety', 'maintenance', 'quality'] as Category[]) {
+  const documents = await loadCorpus();
+  for (const doc of documents) {
     const form = new FormData();
-    form.set('category', category);
-    form.set('file', new File([await Bun.file(`public/demo/${category}.md`).text()], `${category}.md`, { type: 'text/markdown' }));
-    if (!(await request('/api/documents', { method: 'POST', body: form })).ok) throw new Error(`Fictional ${category} upload failed.`);
+    form.set('category', doc.category);
+    form.set('file', new File([doc.text], doc.name, { type: 'text/markdown' }));
+    if (!(await request('/api/documents', { method: 'POST', body: form })).ok) throw new Error(`Fictional ${doc.name} upload failed.`);
+    await new Promise(resolve => setTimeout(resolve, 6500));
   }
   let failures = 0;
   for (const [index, item] of cases.entries()) {
@@ -35,9 +38,10 @@ try {
       if (!item.statuses.includes(answer.status)) reasons.push(`status ${answer.status}`);
       if (item.categories && [...answer.categories].sort().join() !== [...item.categories].sort().join()) reasons.push(`route ${answer.categories.join(',')}`);
       if (answer.status === 'answered' && !answer.citations.length) reasons.push('missing citations');
-      if (item.source && !answer.citations.some(c => c.category === item.source)) reasons.push(`missing ${item.source} evidence`);
+      for (const source of item.sources ?? []) if (!answer.citations.some(c => c.documentName === source)) reasons.push(`missing ${source} evidence`);
       for (const citation of answer.citations) {
-        const original = await Bun.file(`public/demo/${citation.category}.md`).text();
+        const original = documents.find(d => d.name === citation.documentName && d.category === citation.category)?.text;
+        if (!original) { reasons.push('unknown citation document'); continue; }
         const lines = original.replace(/\r\n?/g, '\n').split('\n');
         const span = lines.slice(citation.startLine - 1, citation.endLine).join('\n');
         if (!span.includes(citation.excerpt)) reasons.push('citation does not match exact fixture lines');

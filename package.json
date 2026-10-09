@@ -14,7 +14,10 @@
     "test": "bun test",
     "setup:vectors": "bun scripts/setup-vectors.ts",
     "check:providers": "bun scripts/check-providers.ts",
-    "eval": "bun scripts/evaluate.ts"
+    "eval": "bun scripts/evaluate-local.ts",
+    "eval:decisions": "bun scripts/evaluate-decisions.ts",
+    "eval:live": "bun scripts/evaluate-local.ts --live",
+    "eval:api": "bun scripts/evaluate.ts"
   },
   "dependencies": {
     "@langchain/core": "^1.2.17",

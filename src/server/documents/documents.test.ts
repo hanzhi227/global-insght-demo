@@ -1,4 +1,5 @@
 import { test, expect } from 'bun:test';
+import { MAX_DOCUMENTS, categories } from '../../contracts';
 import { chunkText } from './chunking';
 import { createDocumentService, completedDocuments } from './index';
 import { createRetriever } from '../retrieval';
@@ -26,9 +27,9 @@ test('chunkText preserves exact source including CRLF, Unicode, and line spans',
 });
 test('human categories persist, tenant exclusion and multi-category coverage', async () => {
  const f = fake(); const service = createDocumentService(f.store, embed);
- for (const category of ['safety', 'maintenance', 'quality'] as const) await service.ingest({ workspaceId, name: 'guide.md', category, text: category });
+ for (const category of categories) await service.ingest({ workspaceId, name: 'guide.md', category, text: category });
  await service.ingest({ workspaceId: crypto.randomUUID(), name: 'other.txt', category: 'safety', text: 'foreign' });
- expect(await service.list(workspaceId)).toHaveLength(3);
+ expect(await service.list(workspaceId)).toHaveLength(4);
  const result = await createRetriever(f.store, embed)({ workspaceId, categories: ['safety', 'quality'], question: 'checks?' });
  expect(result.map(r => r.category)).toEqual(['safety', 'quality']);
  expect(result.some(r => r.excerpt === 'foreign')).toBe(false);
@@ -39,10 +40,10 @@ test('partial insert rolls back and incomplete documents are invisible', async (
  expect(f.rows()).toHaveLength(0);
  expect(completedDocuments([{ workspaceId, documentId: crypto.randomUUID(), chunkId: crypto.randomUUID(), category: 'safety', documentName: 'x.txt', chunkIndex: 0, expectedChunkCount: 2, isReady: true, startLine: 1, endLine: 1 }])).toEqual([]);
 });
-test('admissions serialize at five and reject invalid filters', async () => {
+test('admissions serialize at the workspace limit and reject invalid filters', async () => {
  const f = fake(); const service = createDocumentService(f.store, embed);
- const results = await Promise.allSettled(Array.from({ length: 6 }, () => service.ingest({ workspaceId, name: 'guide.txt', category: 'safety', text: 'test' })));
- expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(5);
+ const results = await Promise.allSettled(Array.from({ length: MAX_DOCUMENTS + 1 }, () => service.ingest({ workspaceId, name: 'guide.txt', category: 'safety', text: 'test' })));
+ expect(results.filter(r => r.status === 'fulfilled')).toHaveLength(MAX_DOCUMENTS);
  expect(() => workspaceFilter('x" or true')).toThrow();
 });
 test('abort before publication cleans up', async () => {

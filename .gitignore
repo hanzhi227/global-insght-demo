@@ -7,6 +7,7 @@ node_modules/
 .next/
 out/
 coverage/
+evals/results/
 *.tsbuildinfo
 .DS_Store
 .pi/subagents/

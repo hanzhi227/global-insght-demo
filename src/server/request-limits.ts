@@ -1,4 +1,5 @@
 import { AppError } from './errors';
+import { MAX_DOCUMENTS } from '../contracts';
 type Counter = { count: number; expires: number };
 const counters = new Map<string, Counter>();
 function take(key: string, max: number, windowMs: number, now: number): void {
@@ -14,6 +15,6 @@ export function admitRequest(workspaceId: string, operation: 'read' | 'ask' | 'u
   if (counters.size >= 5000) throw new AppError('RATE_LIMITED', 'The demo is busy. Please try again shortly.', 429, true);
   take('global', 90, 60_000, now);
   take(`${workspaceId}:all`, 30, 60_000, now);
-  if (operation === 'upload') { take('global:uploads', 20, 3_600_000, now); take(`${workspaceId}:uploads`, 8, 3_600_000, now); }
+  if (operation === 'upload') { take('global:uploads', 20, 3_600_000, now); take(`${workspaceId}:uploads`, MAX_DOCUMENTS, 3_600_000, now); }
   if (operation === 'ask') { take('global:asks', 200, 3_600_000, now); take(`${workspaceId}:asks`, 10, 60_000, now); }
 }

@@ -13,7 +13,7 @@ const defaults: WorkflowDependencies = { decide: decisionChoice, retrieve: retri
 const messages = {
   blocked: 'I can explain approved procedures, but not bypass safeguards or falsify records.',
   needs_clarification: 'Please clarify the equipment, task, or document requirements.',
-  out_of_scope: 'Ask about manufacturing safety, maintenance, or quality documentation.',
+  out_of_scope: 'Ask about manufacturing safety, maintenance, quality, or operations documentation.',
   insufficient_evidence: 'The selected documents do not provide enough evidence to answer.'
 };
 

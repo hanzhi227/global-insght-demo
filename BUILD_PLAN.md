@@ -2,6 +2,10 @@
 
 Implementation approved. User-confirmed additions: decision-model category routing; human-designated categories during document upload; embedding and persistence in Zilliz; Railway + Railpack hosting; OpenRouter for decisions, embeddings, and chat. This supersedes the curated-corpus-only draft.
 
+## Corpus/evaluation amendment
+
+User-requested update: four human-designated categories (Safety, Maintenance, Quality, Operations), three substantial fictional documents per category, and a 16-document workspace limit so the full corpus fits. The upload spending allowance also supports that limit. Drafts may cite four passages to cover four-category questions. Local evaluations separate routing, guards, gold evidence recall, and answer support; factual judging remains offline, not a production requirement. Decision-model reranking is optional and should be added only if baseline recall demonstrates a need. These amendments supersede the three-category/five-document wording below.
+
 ## Required journey
 
 1. Operator uploads a UTF-8 TXT/Markdown document and explicitly chooses Safety, Maintenance, or Quality.
