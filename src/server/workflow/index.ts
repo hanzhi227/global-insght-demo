@@ -1,6 +1,7 @@
-import { askRequestSchema, askResponseSchema, draftSchema, passageSchema, type AskResponse } from '../../contracts';
+import { askRequestSchema, askResponseSchema, draftSchema, passageSchema, type AskResponse, type Passage } from '../../contracts';
 import { AppError } from '../errors';
-import { checkSafety, routeQuestion } from '../guardrails';
+import { checkInput, checkSafety, routeQuestion } from '../guardrails';
+import { verifyAnswer } from '../verification';
 import { decisionChoice, generateDraft } from '../providers/openrouter';
 import { retrievePassages } from '../retrieval';
 
@@ -8,8 +9,9 @@ export type WorkflowDependencies = {
   decide: typeof decisionChoice;
   retrieve: typeof retrievePassages;
   draft: typeof generateDraft;
+  verify?: typeof verifyAnswer;
 };
-const defaults: WorkflowDependencies = { decide: decisionChoice, retrieve: retrievePassages, draft: generateDraft };
+const defaults: WorkflowDependencies = { decide: decisionChoice, retrieve: retrievePassages, draft: generateDraft, verify: verifyAnswer };
 const messages = {
   blocked: 'I can explain approved procedures, but not bypass safeguards or falsify records.',
   needs_clarification: 'Please clarify the equipment, task, or document requirements.',
@@ -33,15 +35,21 @@ export function createAnswerQuestion(deps: WorkflowDependencies = defaults) {
       question = parsed.data.question;
       const requestId = crypto.randomUUID();
       const response = (status: AskResponse['status'], categories: AskResponse['categories'] = []): AskResponse => ({ requestId, status, answer: messages[status as keyof typeof messages], categories, citations: [] });
-      const finish = async (result: AskResponse): Promise<AskResponse> => {
+      const finish = async (result: AskResponse, evidence: Passage[] = []): Promise<AskResponse> => {
         const checked = askResponseSchema.parse(result);
         // Complete displayed model answer and all source metadata/excerpts in one decision; never truncate.
         if (!await checkSafety(JSON.stringify({ answer: checked.answer, citations: checked.citations.map(({ documentName, category, startLine, endLine, excerpt }) => ({ documentName, category, startLine, endLine, excerpt })) }), deps.decide, combined))
           return response('blocked', checked.categories);
+        if (checked.status === 'answered' && !await (deps.verify ?? verifyAnswer)(question, checked, evidence, combined)) {
+          combined.throwIfAborted();
+          return response('insufficient_evidence', checked.categories);
+        }
         combined.throwIfAborted();
         return checked;
       };
-      if (!await checkSafety(question, deps.decide, combined)) return response('blocked');
+      const input = await checkInput(question, deps.decide, combined);
+      if (input === 'block') return response('blocked');
+      if (input === 'out_of_scope') return response('out_of_scope');
       const route = await routeQuestion(question, deps.decide, combined);
       if (route.kind === 'clarify') return finish(response('needs_clarification'));
       if (route.kind === 'out_of_scope') return finish(response('out_of_scope'));
@@ -57,6 +65,10 @@ export function createAnswerQuestion(deps: WorkflowDependencies = defaults) {
       const parsedDraft = draftSchema.safeParse(await deps.draft(question, context, combined));
       if (!parsedDraft.success) throw new AppError('INVALID_MODEL_OUTPUT', 'An evidence-backed answer could not be generated. Please try again.');
       const draft = parsedDraft.data;
+      if (draft.status !== 'answered') {
+        if (draft.citationIds.length || Object.keys(draft.citationQuotes ?? {}).length) throw new AppError('INVALID_CITATIONS', 'Non-answer responses cannot cite evidence.');
+        return finish(response(draft.status, route.categories));
+      }
       const byId = new Map(passages.map(p => [p.id, p]));
       if (new Set(draft.citationIds).size !== draft.citationIds.length || draft.citationIds.some(id => !byId.has(id)) ||
           (draft.status === 'answered' ? draft.citationIds.length === 0 : draft.citationIds.length !== 0))
@@ -69,12 +81,12 @@ export function createAnswerQuestion(deps: WorkflowDependencies = defaults) {
         const offset = source.excerpt.indexOf(quote);
         if (offset < 0) throw new AppError('INVALID_CITATIONS', 'The quoted evidence does not match the source. Please try again.');
         const startLine = source.startLine + (source.excerpt.slice(0, offset).match(/\n/g)?.length ?? 0);
-        const endLine = startLine + (quote.match(/\n/g)?.length ?? 0);
+        const endLine = startLine + (quote.replace(/\n$/, '').match(/\n/g)?.length ?? 0);
         return { ...source, excerpt: quote, startLine, endLine };
       });
       if (draft.status === 'answered' && route.categories.some(category => !citations.some(p => p.category === category)))
         return finish(response('insufficient_evidence', route.categories));
-      return finish({ requestId, status: draft.status, answer: draft.answer, categories: route.categories, citations });
+      return finish({ requestId, status: draft.status, answer: draft.answer, categories: route.categories, citations }, passages);
     };
     try { return await Promise.race([run(), cancelled]); }
     catch (error) { if (error instanceof AppError) throw error; throw new AppError('WORKFLOW_FAILED', 'The answer checks did not finish. Please try again.'); }

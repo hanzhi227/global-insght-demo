@@ -8,6 +8,7 @@ function fixture(choices = ['allow', 'safety', 'allow'], passages = [safety]) {
   const deps: WorkflowDependencies = {
     decide: async input => { states.push(input.state); return choices.shift()!; },
     retrieve: async () => passages,
+    verify: async () => true,
     draft: async () => ({ status: 'answered', answer: 'Follow the approved procedure.', citationIds: passages.map(p => p.id) })
   };
   return { deps, states, ask: () => createAnswerQuestion(deps)('What hazards apply to servicing?', 'workspace') };
@@ -64,6 +65,43 @@ describe('answerQuestion checked workflow', () => {
     f.deps.draft = async () => ({ status: 'answered', answer: 'Wrong', citationIds: [safety.id], citationQuotes: { [safety.id]: 'An invented sentence.' } });
     await expect(f.ask()).rejects.toMatchObject({ code: 'INVALID_CITATIONS' });
     expect(f.states).toHaveLength(2);
+  });
+  test('unrelated input is rejected before routing, retrieval or verification', async () => {
+    const f = fixture(['out_of_scope']);
+    f.deps.retrieve = async () => { throw Error('must not retrieve'); };
+    f.deps.verify = async () => { throw Error('must not verify'); };
+    const result = await createAnswerQuestion(f.deps)('How do I make a cheese sandwich?', 'workspace');
+    expect(result.status).toBe('out_of_scope'); expect(result.citations).toEqual([]); expect(f.states).toHaveLength(1);
+  });
+  test('unsupported answer is replaced by abstention without exposing its text or citations', async () => {
+    const f = fixture(); f.deps.verify = async (question, answer, evidence) => {
+      expect(question).toBe('What hazards apply to servicing?');
+      expect(answer.citations).toEqual([safety]); expect(evidence).toEqual([safety]); return false;
+    };
+    const result = await f.ask(); expect(result.status).toBe('insufficient_evidence');
+    expect(result.answer).not.toBe('Follow the approved procedure.'); expect(result.citations).toEqual([]);
+  });
+  test('verifier outage fails closed', async () => {
+    const f = fixture(); f.deps.verify = async () => { throw Error('offline'); };
+    await expect(f.ask()).rejects.toMatchObject({ code: 'WORKFLOW_FAILED' });
+  });
+  test('non-answer model text is replaced with fixed server copy', async () => {
+    const f = fixture(); f.deps.verify = async () => { throw Error('no answer to verify'); };
+    f.deps.draft = async () => ({ status: 'insufficient_evidence', answer: 'An unsupported recommendation.', citationIds: [] });
+    const result = await f.ask(); expect(result.answer).toBe('The selected documents do not provide enough evidence to answer.');
+    expect(f.states[2]).not.toContain('An unsupported recommendation.');
+  });
+  test('verifier sees full context, not only cherry-picked quotes', async () => {
+    const p = { ...safety, excerpt: 'Restart is allowed.\nOnly after authorized inspection.' };
+    const f = fixture(['allow', 'safety', 'allow'], [p]);
+    f.deps.draft = async () => ({ status: 'answered', answer: 'Restart is allowed.', citationIds: [p.id], citationQuotes: { [p.id]: 'Restart is allowed.' } });
+    f.deps.verify = async (_question, answer, evidence) => { expect(answer.citations[0].excerpt).toBe('Restart is allowed.'); expect(evidence[0].excerpt).toContain('Only after authorized inspection.'); return false; };
+    expect((await f.ask()).status).toBe('insufficient_evidence');
+  });
+  test('cancellation during verification cannot expose a late answer', async () => {
+    const f = fixture(); const controller = new AbortController();
+    f.deps.verify = () => { controller.abort(); return new Promise(() => {}); };
+    await expect(createAnswerQuestion(f.deps)('What hazards apply?', 'workspace', controller.signal)).rejects.toMatchObject({ code: 'WORKFLOW_CANCELLED' });
   });
   test('cancellation bounds uncooperative adapter', async () => { const f = fixture(); f.deps.decide = () => new Promise(() => {}); const controller = new AbortController(); const result = createAnswerQuestion(f.deps)('Question', 'workspace', controller.signal); controller.abort(); await expect(result).rejects.toMatchObject({ code: 'WORKFLOW_CANCELLED' }); });
 });
