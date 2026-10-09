@@ -1,29 +1,36 @@
 /*
- * Plant documentation assistant: operational workspace.
- * Palette: steel ground, white surfaces, hairline steel rules, ink text,
- * one deep teal for primary action and focus. Warnings and blocks use
- * muted ochre and oxblood. Nothing decorative; every color carries state.
+ * Plant documentation assistant: shadow board.
+ * Each category is a painted outline on a pale perforated board. Sources hang
+ * inside their category outline as solid tools; an empty category is a dashed
+ * outline. Reading happens on white sheets, in ink, at reading size. Color
+ * carries category and state only; nothing decorative.
  */
 :root {
   color-scheme: light;
-  --ground: #edf1f4;
-  --surface: #ffffff;
-  --wash: #f6f8fa;
-  --hairline: #cbd5de;
-  --control-line: #7a8896;
-  --ink: #15202b;
-  --ink-muted: #4b5966;
-  --teal: #0d5c63;
-  --teal-deep: #094a50;
-  --teal-wash: #ddeef0;
-  --warn-ink: #6e4700;
-  --warn-wash: #fbf1d6;
-  --warn-line: #e2c36e;
-  --danger-ink: #8c1d1d;
-  --danger-wash: #fbe9e9;
-  --danger-line: #e6a9a9;
-  --radius: 6px;
-  --font: system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --board: #eceee9;
+  --board-hole: #d3d8d0;
+  --sheet: #ffffff;
+  --wash: #f5f6f3;
+  --rule: #c9cec5;
+  --control-line: #6f7985;
+  --ink: #1b1f24;
+  --ink-muted: #4a525c;
+  --focus: #0b5cad;
+  --red: #b3261e;
+  --brand: #00283d;
+  --blue: #1d4f91;
+  --green: #1f6b43;
+  --graphite: #3d4650;
+  --warn-ink: #6b4300;
+  --warn-wash: #fbf3dc;
+  --warn-line: #b88a1f;
+  --danger-ink: #8a1c1c;
+  --danger-wash: #f8e4e2;
+  --danger-line: #c76a6a;
+  --radius: 4px;
+  --font: var(--font-body), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  --display: var(--font-display), ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --mono: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace;
 }
 
 *,
@@ -34,27 +41,29 @@
 
 html {
   -webkit-text-size-adjust: 100%;
-  accent-color: var(--teal);
-  scrollbar-color: var(--control-line) var(--ground);
+  accent-color: var(--ink);
+  scrollbar-color: var(--control-line) var(--board);
 }
 
 body {
   margin: 0;
-  background: var(--ground);
+  background-color: var(--board);
+  background-image: radial-gradient(circle, var(--board-hole) 1.1px, transparent 1.4px);
+  background-size: 16px 16px;
   color: var(--ink);
-  font: 400 1rem / 1.5 var(--font);
+  font: 400 1.0625rem / 1.5 var(--font);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
 }
 
 ::selection {
-  background: var(--teal-wash);
-  color: var(--ink);
+  background: var(--red);
+  color: #ffffff;
 }
 
 :focus-visible {
-  outline: 3px solid var(--teal);
-  outline-offset: 2px;
+  outline: 3px solid var(--focus);
+  outline-offset: 3px;
 }
 
 .container {
@@ -71,18 +80,32 @@ body {
   white-space: nowrap;
 }
 
+/* Brand bar: the Insight Global logo on its own navy field, the logo's native background */
+
+.brand-bar {
+  padding: 18px 0;
+  background: var(--brand);
+}
+
+.brand-logo {
+  display: block;
+  width: clamp(168px, 22vw, 244px);
+  height: auto;
+}
+
 /* Masthead */
 
 .masthead {
-  padding: 36px 0 24px;
+  padding: 40px 0 24px;
 }
 
 .masthead h1 {
   margin: 0;
-  font-size: clamp(1.5rem, 1.2rem + 1vw, 1.875rem);
-  font-weight: 650;
-  line-height: 1.2;
-  letter-spacing: -0.015em;
+  font-family: var(--display);
+  font-size: clamp(1.875rem, 1.5rem + 1.6vw, 2.75rem);
+  font-weight: 700;
+  line-height: 1.05;
+  letter-spacing: 0.005em;
   text-wrap: balance;
 }
 
@@ -90,10 +113,11 @@ body {
   margin: 8px 0 0;
   max-width: 60ch;
   color: var(--ink-muted);
+  font-size: 1.0625rem;
   text-wrap: pretty;
 }
 
-/* Persistent demo notice */
+/* Demo notice: a printed warning strip on the board */
 
 .demo-notice {
   margin: 0 0 24px;
@@ -102,15 +126,15 @@ body {
   border-radius: var(--radius);
   background: var(--warn-wash);
   color: var(--warn-ink);
-  font-size: 0.9375rem;
+  font-size: 1rem;
 }
 
-/* Workspace layout */
+/* Workspace: board on the left, reading sheet on the right */
 
 .workspace {
   display: grid;
-  grid-template-columns: minmax(0, 340px) minmax(0, 1fr);
-  gap: 24px;
+  grid-template-columns: minmax(0, 360px) minmax(0, 1fr);
+  gap: 32px;
   align-items: start;
   padding-bottom: 56px;
 }
@@ -118,15 +142,43 @@ body {
 .panel {
   min-width: 0;
   padding: 24px;
-  border: 1px solid var(--hairline);
-  border-radius: 8px;
-  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--sheet);
 }
 
 .panel-title {
   margin: 0 0 16px;
-  font-size: 1.0625rem;
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 1.375rem;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* The reading sheet starts level with the upload sheet, below the board title */
+
+.questions {
+  margin-top: 2.35rem;
+}
+
+/* Board: the documents panel has no sheet of its own. Its upload form sits on
+   a white sheet; its categories are painted outlines on the board. */
+
+.documents {
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+
+.documents .panel-title {
+  margin-bottom: 12px;
+}
+
+.upload-sheet {
+  padding: 20px;
+  border: 1px solid var(--rule);
+  border-radius: var(--radius);
+  background: var(--sheet);
 }
 
 /* Fields and controls */
@@ -138,8 +190,8 @@ body {
 }
 
 .field-label {
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 input[type='file'] {
@@ -164,12 +216,13 @@ input[type='file']::file-selector-button {
 select,
 textarea {
   width: 100%;
-  padding: 9px 11px;
+  padding: 10px 12px;
   border: 1px solid var(--control-line);
   border-radius: var(--radius);
-  background: var(--surface);
+  background: var(--sheet);
   color: var(--ink);
   font: inherit;
+  font-size: 1rem;
 }
 
 select {
@@ -177,7 +230,7 @@ select {
 }
 
 textarea {
-  min-height: 6.5rem;
+  min-height: 7rem;
   resize: vertical;
 }
 
@@ -187,17 +240,24 @@ input:disabled {
   cursor: not-allowed;
 }
 
+textarea::placeholder {
+  color: var(--ink-muted);
+  opacity: 1;
+}
+
 .hint {
   margin: 0 0 16px;
   color: var(--ink-muted);
-  font-size: 0.8125rem;
+  font-size: 0.875rem;
   font-variant-numeric: tabular-nums;
 }
+
+/* Buttons: one dark-ink primary action; secondary is an ink outline */
 
 .button {
   min-height: 44px;
   padding: 10px 18px;
-  border: 1px solid var(--teal);
+  border: 1px solid var(--ink);
   border-radius: var(--radius);
   font: inherit;
   font-weight: 600;
@@ -205,28 +265,28 @@ input:disabled {
 }
 
 .button.primary {
-  background: var(--teal);
+  background: var(--ink);
   color: #ffffff;
 }
 
 .button.primary:hover:not(:disabled) {
-  background: var(--teal-deep);
-  border-color: var(--teal-deep);
+  background: #000000;
 }
 
 .button.secondary {
-  background: var(--surface);
-  color: var(--teal);
+  background: var(--sheet);
+  color: var(--ink);
 }
 
 .button.secondary:hover {
-  background: var(--teal-wash);
+  background: var(--wash);
 }
 
+/* Disabled is a hollow mark, not a grey fill: the action is present but spent */
 .button:disabled {
-  background: #a9bfc2;
-  border-color: #a9bfc2;
-  color: #ffffff;
+  background: var(--sheet);
+  border-color: var(--control-line);
+  color: var(--ink-muted);
   cursor: not-allowed;
 }
 
@@ -238,49 +298,111 @@ input:disabled {
   min-height: 1.25rem;
   margin: 8px 0 0;
   color: var(--ink-muted);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
 }
 
-/* Document list */
+/* Category outlines: painted 2px lines; dashed when empty */
 
-.doc-list {
-  margin: 8px 0 0;
+.board {
+  display: grid;
+  gap: 16px;
+  margin: 20px 0 0;
   padding: 0;
   list-style: none;
-  border-top: 1px solid var(--hairline);
 }
 
-.doc {
+.outline {
+  --cat: var(--graphite);
+  padding: 12px 14px 14px;
+  border: 2px solid var(--cat);
+  border-radius: var(--radius);
+}
+
+.outline.is-empty {
+  border-style: dashed;
+}
+
+.outline-safety {
+  --cat: var(--red);
+}
+
+.outline-maintenance {
+  --cat: var(--blue);
+}
+
+.outline-quality {
+  --cat: var(--green);
+}
+
+.outline-operations {
+  --cat: var(--graphite);
+}
+
+.outline-title {
+  margin: 0;
+  color: var(--cat);
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+.tools {
   display: grid;
-  gap: 6px;
-  padding: 12px 0;
-  border-bottom: 1px solid var(--hairline);
+  gap: 8px;
+  margin: 10px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
-.doc-name {
-  font-weight: 500;
+/* A source hung in its outline: a solid tool in the category color */
+
+.tool {
+  display: grid;
+  gap: 2px;
+  padding: 10px 12px;
+  border-radius: 3px;
+  background: var(--cat);
+  color: #ffffff;
+  animation: hang 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.tool-name {
+  font-weight: 600;
   overflow-wrap: anywhere;
 }
 
-.doc-meta {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 8px 12px;
-  color: var(--ink-muted);
-  font-size: 0.875rem;
+.tool-meta {
+  font-size: 0.9375rem;
+  opacity: 0.92;
   font-variant-numeric: tabular-nums;
 }
 
+@keyframes hang {
+  from {
+    transform: translateY(-6px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
 .doc-list-loading {
-  border-top: 0;
+  display: grid;
+  gap: 10px;
+  margin: 20px 0 0;
+  padding: 0;
+  list-style: none;
 }
 
 .doc-list-loading li {
-  height: 52px;
-  margin-top: 12px;
+  height: 56px;
+  border: 2px dashed var(--rule);
   border-radius: var(--radius);
-  background: var(--ground);
+  background: transparent;
 }
 
 .empty {
@@ -288,17 +410,41 @@ input:disabled {
   color: var(--ink-muted);
 }
 
+/* Chips: routed categories are painted outlines in their color */
+
 .chip {
   display: inline-flex;
   align-items: center;
-  min-height: 24px;
-  padding: 0 8px;
-  border: 1px solid var(--hairline);
-  border-radius: 999px;
-  background: var(--wash);
+  min-height: 30px;
+  padding: 0 10px;
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: var(--sheet);
   color: var(--ink);
-  font-size: 0.8125rem;
+  font-family: var(--display);
+  font-size: 0.9375rem;
+  font-weight: 700;
   white-space: nowrap;
+}
+
+.chip-safety {
+  border-color: var(--red);
+  color: var(--red);
+}
+
+.chip-maintenance {
+  border-color: var(--blue);
+  color: var(--blue);
+}
+
+.chip-quality {
+  border-color: var(--green);
+  color: var(--green);
+}
+
+.chip-operations {
+  border-color: var(--graphite);
+  color: var(--graphite);
 }
 
 /* Question and answer */
@@ -321,11 +467,11 @@ input:disabled {
 
 .progress {
   position: relative;
-  height: 3px;
+  height: 4px;
   margin-top: 12px;
   overflow: hidden;
   border-radius: 2px;
-  background: var(--teal-wash);
+  background: var(--wash);
 }
 
 .progress::after {
@@ -335,7 +481,7 @@ input:disabled {
   bottom: 0;
   left: -30%;
   width: 30%;
-  background: var(--teal);
+  background: var(--ink);
   animation: sweep 1.3s ease-in-out infinite;
 }
 
@@ -345,10 +491,22 @@ input:disabled {
   }
 }
 
+/* The answer sheet. Solid rule when evidence exists; dashed when the answer
+   has no evidence behind it, so the reader sees the gap. */
+
 .result {
   margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid var(--hairline);
+  padding-top: 20px;
+  border-top: 2px solid var(--ink);
+}
+
+/* Solid rule: cited evidence is on the sheet. Dashed: nothing was cited. */
+.result.result-insufficient_evidence,
+.result.result-needs_clarification,
+.result.result-blocked,
+.result.result-out_of_scope,
+.result.result-failed {
+  border-top-style: dashed;
 }
 
 .result:focus {
@@ -364,14 +522,15 @@ input:disabled {
 .status {
   display: inline-flex;
   align-items: center;
-  min-height: 26px;
+  min-height: 30px;
   padding: 0 10px;
-  border: 1px solid var(--hairline);
-  border-radius: 4px;
-  background: var(--wash);
+  border: 2px solid var(--ink);
+  border-radius: 3px;
+  background: var(--sheet);
   color: var(--ink);
-  font-size: 0.8125rem;
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 1rem;
+  font-weight: 700;
 }
 
 .status-warn {
@@ -387,9 +546,9 @@ input:disabled {
 }
 
 .answer-text {
-  max-width: 68ch;
+  max-width: 66ch;
   margin: 14px 0 0;
-  font-size: 1.0625rem;
+  font-size: 1.125rem;
   line-height: 1.6;
   white-space: pre-line;
   text-wrap: pretty;
@@ -405,8 +564,8 @@ input:disabled {
 
 .routed-label {
   color: var(--ink-muted);
-  font-size: 0.875rem;
-  font-weight: 600;
+  font-size: 0.9375rem;
+  font-weight: 700;
 }
 
 .chips {
@@ -439,7 +598,7 @@ input:disabled {
   margin: 0;
 }
 
-/* Sources */
+/* Sources: exact excerpts with real line numbers */
 
 .sources {
   margin-top: 24px;
@@ -447,8 +606,10 @@ input:disabled {
 
 .sources-title {
   margin: 0 0 10px;
-  font-size: 0.9375rem;
-  font-weight: 600;
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.2;
 }
 
 .passages {
@@ -461,8 +622,9 @@ input:disabled {
 
 .passage {
   overflow: hidden;
-  border: 1px solid var(--hairline);
+  border: 1px solid var(--rule);
   border-radius: var(--radius);
+  background: var(--sheet);
 }
 
 .passage-head {
@@ -471,30 +633,28 @@ input:disabled {
   justify-content: space-between;
   gap: 4px 16px;
   padding: 10px 14px;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--rule);
   background: var(--wash);
 }
 
 .passage-name {
-  font-weight: 600;
+  font-weight: 700;
   overflow-wrap: anywhere;
 }
 
 .passage-meta {
   color: var(--ink-muted);
-  font-size: 0.875rem;
+  font-size: 0.9375rem;
   font-variant-numeric: tabular-nums;
 }
 
-/* Excerpt: source text with its real line numbers, so the reader can check
-   the citation against the document it came from. */
 .excerpt {
   max-height: 16rem;
   overflow: auto;
   padding: 10px 0;
-  background: var(--surface);
-  scrollbar-color: var(--hairline) transparent;
-  font-size: 0.9375rem;
+  background: var(--sheet);
+  scrollbar-color: var(--control-line) transparent;
+  font-size: 1.0625rem;
   line-height: 1.6;
 }
 
@@ -504,26 +664,31 @@ input:disabled {
 }
 
 .gutter {
-  padding: 0 12px 0 14px;
+  padding: 0 12px 0 12px;
   color: var(--ink-muted);
+  font-family: var(--mono);
+  font-size: 0.875rem;
+  line-height: 1.6;
   text-align: right;
   font-variant-numeric: tabular-nums;
   user-select: none;
-  border-right: 1px solid var(--hairline);
+  border-right: 2px solid var(--rule);
 }
 
 .excerpt-text {
   min-height: 1.6em;
+  max-width: 72ch;
   padding: 0 14px;
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
 
-/* Narrow screens: stack panels in the same order as the desktop reading path. */
+/* Narrow screens: the board stacks above the sheet, in reading order */
 
 @media (max-width: 860px) {
   .workspace {
     grid-template-columns: minmax(0, 1fr);
+    gap: 24px;
   }
 }
 
@@ -532,8 +697,17 @@ input:disabled {
     width: min(100%, calc(100% - 32px));
   }
 
-  .panel {
-    padding: 20px 16px;
+  .panel,
+  .upload-sheet {
+    padding: 18px 16px;
+  }
+
+  .documents {
+    padding: 0;
+  }
+
+  .questions {
+    margin-top: 0;
   }
 
   .gutter {
@@ -546,6 +720,10 @@ input:disabled {
     left: 0;
     width: 100%;
     opacity: 0.4;
+    animation: none;
+  }
+
+  .tool {
     animation: none;
   }
 }

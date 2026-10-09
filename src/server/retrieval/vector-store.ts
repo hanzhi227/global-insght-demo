@@ -27,6 +27,8 @@ export interface VectorStore {
  search(workspaceId: string, documentIds: string[], vector: number[], query: string, category?: Category): Promise<StoredChunk[]>;
 }
 
+export type VectorReader = Pick<VectorStore, 'info' | 'queryChunks' | 'search'>;
+
 export function validateWorkspace(workspaceId: string): void {
  if (!uuid.safeParse(workspaceId).success) throw new AppError('INVALID_WORKSPACE', 'Invalid workspace.', 400, false);
 }
@@ -76,8 +78,8 @@ export function validateCollection(description: DescribeCollectionResponse, expe
  return { dimension, strategy: 'dense' };
 }
 
-export function createMilvusClient(): MilvusClient {
- return new MilvusClient({ address: requiredEnv('ZILLIZ_ENDPOINT'), token: requiredEnv('ZILLIZ_TOKEN'), timeout: 20_000, maxRetries: 1, logLevel: 'error' });
+export function createMilvusClient(token = requiredEnv('ZILLIZ_TOKEN')): MilvusClient {
+ return new MilvusClient({ address: requiredEnv('ZILLIZ_ENDPOINT'), token, timeout: 20_000, maxRetries: 1, logLevel: 'error' });
 }
 export function collectionName(): string {
  const name = process.env.ZILLIZ_COLLECTION?.trim() || 'document_chunks_v1';
@@ -145,8 +147,8 @@ export class MilvusVectorStore implements VectorStore {
   });
  }
 }
-let defaultStore: VectorStore | undefined;
-export function getVectorStore(): VectorStore {
+let defaultStore: VectorReader | undefined;
+export function getVectorStore(): VectorReader {
  return defaultStore ??= new MilvusVectorStore(createMilvusClient(), collectionName());
 }
 

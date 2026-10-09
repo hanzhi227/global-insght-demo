@@ -95,7 +95,7 @@ export function QuestionPanel() {
       </form>
 
       {phase.kind === 'failed' && (
-        <div className="result" ref={resultRef} tabIndex={-1}>
+        <div className="result result-failed" ref={resultRef} tabIndex={-1}>
           <Notice
             tone="danger"
             action={
@@ -127,7 +127,7 @@ function AnswerView({
 }) {
   const tone = statusTones[response.status];
   return (
-    <div className="result" ref={resultRef} tabIndex={-1}>
+    <div className={`result result-${response.status}`} ref={resultRef} tabIndex={-1}>
       <div className="answer-head">
         <span className={`status status-${tone}`}>{statusLabels[response.status]}</span>
       </div>
@@ -139,7 +139,7 @@ function AnswerView({
           <span className="routed-label">Routed to</span>
           <ul className="chips" aria-label="Categories searched">
             {response.categories.map((category) => (
-              <li key={category} className="chip">
+              <li key={category} className={`chip chip-${category}`}>
                 {categoryLabels[category]}
               </li>
             ))}

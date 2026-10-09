@@ -9,16 +9,16 @@ web
 User-confirmed: LangChain, Next.js, Bun; Railway hosting with Railpack; Zilliz vectors; OpenRouter decision, embedding, and chat models.
 
 ## Users
-Plant operators onboard documents. Floor supervisors ask questions about manufacturing documentation.
+Demo operators seed curated documents from the repository. Floor supervisors ask questions about manufacturing documentation.
 
 ## Product Purpose
 Route questions to the correct safety procedures, maintenance manuals, or quality control standards and answer with inspectable supporting evidence.
 
 ## Operating Context
-The user approved implementation after reviewing the plan. Humans designate the category during document upload; embedding/indexing preserves that designation. The decision model routes questions to these bins. Both input and output appropriateness checks are required.
+The user approved a shared read-only corpus. Operators designate categories by source directory and explicitly seed Zilliz using separate write credentials; the runtime uses query-only credentials. Visitors cannot upload documents. The decision model routes questions to these bins. Both input and output appropriateness checks are required.
 
 ## Capabilities and Constraints
-Three categories: Safety, Maintenance, Quality. Upload and embedding are required. A validator agent is optional after the main workflow works. Real hosting/provider access has not been verified. Initial format/size limits and isolated browser workspaces are implementation defaults from the parent, not claims about the user's plant systems.
+Four categories: Safety, Maintenance, Quality, Operations, with three fictional documents each. Operator-side embedding and versioned seeding are explicit, never run on startup. All visitors read the same complete corpus; signed cookies support request limits only. Accuracy evaluation remains offline. Live provider checks have run; deployment and independent factual review remain separate acceptance steps.
 
 ## Evidence on Hand
 A sibling repository contains Zilliz/OpenRouter/Clef integration examples. No real plant manuals, brand assets, or accuracy benchmark have been supplied. Any demo procedures must be explicitly fictional.

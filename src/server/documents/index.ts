@@ -2,7 +2,7 @@ import { z } from 'zod';
 import { MAX_DOCUMENTS, categorySchema, type Category, type DocumentSummary } from '../../contracts';
 import { AppError } from '../errors';
 import { embedTexts } from '../providers/openrouter';
-import { getVectorStore, validateWorkspace, type VectorStore, type InsertChunk, type ChunkMetadata } from '../retrieval/vector-store';
+import { validateWorkspace, type VectorStore, type InsertChunk, type ChunkMetadata } from '../retrieval/vector-store';
 import { chunkText } from './chunking';
 export type IngestInput = { workspaceId: string; name: string; category: Category; text: string };
 export function completedDocuments(rows: ChunkMetadata[]): DocumentSummary[] {
@@ -52,5 +52,3 @@ export function createDocumentService(store: VectorStore, embed: typeof embedTex
   }
  };
 }
-export async function ingestDocument(input: IngestInput, signal?: AbortSignal): Promise<DocumentSummary> { return createDocumentService(getVectorStore(), embedTexts).ingest(input, signal); }
-export async function listDocuments(workspaceId: string, signal?: AbortSignal): Promise<DocumentSummary[]> { return createDocumentService(getVectorStore(), embedTexts).list(workspaceId, signal); }

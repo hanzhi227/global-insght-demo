@@ -18,4 +18,4 @@ export type AskResponse = z.infer<typeof askResponseSchema>;
 export type ApiError = { requestId: string; error: { code: string; message: string; retryable: boolean } };
 export type RouteDecision = { kind: 'retrieve'; categories: Category[] } | { kind: 'clarify' } | { kind: 'out_of_scope' };
 export type ModelDraft = { status: 'answered' | 'insufficient_evidence' | 'needs_clarification'; answer: string; citationIds: string[]; citationQuotes?: Record<string, string> };
-export const draftSchema = z.object({ status: z.enum(['answered', 'insufficient_evidence', 'needs_clarification']), answer: z.string().trim().min(1).max(1000), citationIds: z.array(z.string().uuid()).max(4), citationQuotes: z.record(z.string().uuid(), z.string().min(1).max(240)).optional() }).strict();
+export const draftSchema = z.object({ status: z.enum(['answered', 'insufficient_evidence', 'needs_clarification']), answer: z.string().trim().min(1).max(1000), citationIds: z.array(z.string().uuid()).max(4), citationQuotes: z.record(z.string().uuid(), z.string().min(1).max(600)).optional() }).strict();

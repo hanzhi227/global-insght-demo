@@ -11,15 +11,15 @@ Northstar Precision Components, Cedar Falls Plant produces AX-210 aluminum mount
 | Quality | QUA-001 bracket inspection/release; QUA-002 quarantine/disposition; QUA-003 gauge calibration |
 | Operations | OPS-001 shift handover; OPS-002 changeover/batch traceability; OPS-003 staging/dispatch |
 
-Each file lives at `public/demo/{category}/{id-lowercase}.md`. Upload with that category; human categorization is authoritative. Safety owns authorizations, Maintenance owns equipment condition, Quality owns held-product release, and Operations owns scheduling and material flow. No role may bypass guards, restart isolated equipment without release, or falsify records.
+Each file lives at `public/demo/{category}/{id-lowercase}.md`. The operator seeds it with that directory's category; human categorization is authoritative. Public uploads are disabled. Safety owns authorizations, Maintenance owns equipment condition, Quality owns held-product release, and Operations owns scheduling and material flow. No role may bypass guards, restart isolated equipment without release, or falsify records.
 
 ## Suites
 
-- `bun test`: deterministic workflow, failure, tenant, upload, metric, and corpus tests. Mocked decisions demonstrate application behavior, not Clef quality.
+- `bun test`: deterministic workflow, failure, namespace filtering, upload rejection, metric, corpus versioning and idempotent/resumable seeding tests. Mocked decisions demonstrate application behavior, not Clef quality.
 - `bun run eval`: validates document count/length, exact chunk reconstruction, internal document references, and gold evidence anchors. No network calls and no model-quality claim.
 - `bun run eval:decisions`: real configured Clef, 18 routing cases and 16 guard cases. Includes each category, multi-category routing, ambiguous/out-of-scope intent, injection, harmful requests, unsafe output text, and benign safety questions. Provider errors are failures, never substituted with a keyword classifier.
 - `bun run eval:live`: real embedding, chat, and decision calls against production ingestion/chunking/retrieval/workflow code. An ephemeral exact-COSINE vector store replaces Zilliz only. Fourteen retrieval/reference-answer cases, nine workflow rejection cases, unknown-equipment abstention, and malicious-source injection are tested. No remote vectors persist.
-- `bun run eval:api`: real HTTP app and Zilliz upload/ask journey in a fresh signed workspace, seeding all 12 documents. Set `EVAL_BASE_URL` if needed. It checks status, category, cited document identity, and exact source lines, not factual entailment. It spends credits and leaves fictional vectors in the disposable workspace. Uploads and asks are paced to respect demo request limits. Use a test collection, not production.
+- `bun run eval:api`: real HTTP app and Zilliz list/ask journey against the already-seeded shared corpus. It verifies public POST uploads return 405 and different visitors see identical documents. Set `EVAL_BASE_URL` if needed. It checks status, category, cited document identity, and exact source lines, not factual entailment. It spends question-provider credits but never inserts or deletes vectors. Asks are paced to respect demo request limits. Seed and verify the matching checkout separately; use a test collection, not production.
 
 Reports: `evals/results/decisions.json` and `evals/results/local-live.json`. Reports contain fictional answers and sources, never keys. They are ignored so future sensitive evaluation outputs are not accidentally committed.
 
@@ -32,10 +32,11 @@ Each case records:
 1. **Oracle-category retrieval**: search the correct category set. This isolates embedding/chunking/search quality.
 2. **Routed retrieval**: search the categories actually selected by Clef. Differences expose routing losses.
 3. **Answer mechanics**: status, route, exact quotes and source lines.
-4. **Offline reference/support judge**: Clef checks the entire answer, cited quotes, and expected facts. Unsupported or incomplete answers fail. If the complete judge input exceeds 1,500 UTF-8 bytes, it is marked `judge_input_limit`, not truncated or passed.
-5. **Human review**: inspect each answer against the full gold paragraphs. Model judging is fallible and shares a decision model with the application; it is not an independent accuracy certificate.
+4. **Explicit reference facts**: `answer-checks.ts` checks required facts in the answer, catching omissions a model judge can miss. These lexical checks can reject valid paraphrases and do not establish logical entailment.
+5. **Offline reference/support judge**: Clef checks the entire answer, cited quotes, and expected facts. Unsupported or incomplete answers fail. If the complete judge input exceeds 1,500 UTF-8 bytes, it is marked `judge_input_limit`, not truncated or passed.
+6. **Human review**: inspect each answer against the full gold paragraphs. Model judging is fallible and shares a decision model with the application; it is not an independent accuracy certificate.
 
-The live local suite gates each reference case on full gold-span recall, correct routing, answered status, valid citations, and a supported rubric verdict. Negative cases must block before retrieval/chat, or abstain appropriately. No production accuracy percentage should be inferred from this small synthetic set.
+The live local suite gates each reference case on full gold-span recall, correct routing, answered status, valid citations, explicit reference-fact coverage, and a supported rubric verdict. Negative cases must block before retrieval/chat, or abstain appropriately. No production accuracy percentage should be inferred from this small synthetic set.
 
 ## Release and production-time validation
 

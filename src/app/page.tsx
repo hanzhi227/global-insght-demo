@@ -1,9 +1,23 @@
+import Image from 'next/image';
 import { DocumentPanel } from '@/components/document-panel';
 import { QuestionPanel } from '@/components/question-panel';
 
 export default function Page() {
   return (
     <>
+      <div className="brand-bar">
+        <div className="container">
+          <Image
+            src="/brand/insight-global-logo.png"
+            alt="Insight Global"
+            width={1176}
+            height={303}
+            priority
+            className="brand-logo"
+          />
+        </div>
+      </div>
+
       <header className="masthead">
         <div className="container">
           <h1>Plant documentation assistant</h1>

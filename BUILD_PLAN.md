@@ -2,6 +2,10 @@
 
 Implementation approved. User-confirmed additions: decision-model category routing; human-designated categories during document upload; embedding and persistence in Zilliz; Railway + Railpack hosting; OpenRouter for decisions, embeddings, and chat. This supersedes the curated-corpus-only draft.
 
+## Curated read-only corpus amendment
+
+The user approved replacing public uploads with operator seeding. All visitors now list/search the same content-versioned namespace; cookies remain only for spending limits. `POST /api/documents` is disabled, the upload UI/client/validator are removed, and old workspace vectors are never selected. Source Markdown, operator-designated directory categories, and chunk boundaries determine the corpus version. Explicit `seed:corpus` uses only `ZILLIZ_SEED_TOKEN`; runtime `ZILLIZ_TOKEN` must have query/search/inspection permissions only, and the operator token must not be deployed. Schema creation also requires the operator token. Corpus seeding is idempotent/resumable, preserves unrelated and old-version vectors, and must run one process at a time. Health/list/ask fail closed until the whole expected corpus is complete. The HTTP evaluation is now read-only and checks shared visibility and upload rejection. This supersedes the upload journey, upload UI, tenant-only document retrieval, and runtime ingestion interfaces below; they describe the historical implementation.
+
 ## Corpus/evaluation amendment
 
 User-requested update: four human-designated categories (Safety, Maintenance, Quality, Operations), three substantial fictional documents per category, and a 16-document workspace limit so the full corpus fits. The upload spending allowance also supports that limit. Drafts may cite four passages to cover four-category questions. Local evaluations separate routing, guards, gold evidence recall, and answer support; factual judging remains offline, not a production requirement. Decision-model reranking is optional and should be added only if baseline recall demonstrates a need. These amendments supersede the three-category/five-document wording below.

@@ -1,4 +1,4 @@
-import type { ApiError, AskResponse, Category, DocumentSummary } from '@/contracts';
+import type { ApiError, AskResponse, DocumentSummary } from '@/contracts';
 
 export type Failure = { message: string; retryable: boolean };
 
@@ -32,13 +32,6 @@ async function send<T>(input: string, init: RequestInit): Promise<T> {
 
 export function listDocuments() {
   return send<{ documents: DocumentSummary[] }>('/api/documents', { cache: 'no-store' });
-}
-
-export function uploadDocument(file: File, category: Category) {
-  const form = new FormData();
-  form.append('file', file);
-  form.append('category', category);
-  return send<{ document: DocumentSummary }>('/api/documents', { method: 'POST', body: form });
 }
 
 export function askQuestion(question: string) {

@@ -1,5 +1,6 @@
 import { askRequestSchema } from '@/contracts';
 import { answerQuestion } from '@/server/workflow';
+import { curatedWorkspace } from '@/server/corpus';
 import { workspaceFor } from '@/server/session';
 import { admitRequest } from '@/server/request-limits';
 import { assertSameOrigin, readBody, jsonResponse, errorResponse } from '@/server/http';
@@ -19,7 +20,8 @@ export async function POST(request: Request) {
     catch (error) { if (error instanceof AppError) throw error; throw new AppError('INVALID_REQUEST', 'Send a valid JSON question.', 400, false); }
     const parsed = askRequestSchema.safeParse(body);
     if (!parsed.success) throw new AppError('INVALID_QUESTION', 'Enter a question of 1–1,000 characters.', 400, false);
-    const response = await answerQuestion(parsed.data.question, workspace.id, AbortSignal.any([request.signal, AbortSignal.timeout(90_000)]));
+    const signal = AbortSignal.any([request.signal, AbortSignal.timeout(90_000)]);
+    const response = await answerQuestion(parsed.data.question, await curatedWorkspace(signal), signal);
     return jsonResponse({ ...response, requestId }, 200, cookie);
   } catch (error) { return errorResponse(error, requestId, cookie); }
 }

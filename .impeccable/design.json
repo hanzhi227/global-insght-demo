@@ -1,0 +1,158 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-09T14:03:00-05:00",
+  "title": "Design System: Plant Documentation Assistant",
+  "extensions": {
+    "colorMeta": {
+      "board": { "role": "ground", "displayName": "Board Ground", "canonical": "#eceee9", "tonalRamp": ["#0a0c09", "#242622", "#41433f", "#60625e", "#81837f", "#a4a6a1", "#c8cac5", "#edefea"] },
+      "board-perforation": { "role": "ground", "displayName": "Board Perforation", "canonical": "#d3d8d0", "tonalRamp": ["#090c07", "#232620", "#3f433d", "#5e635c", "#7f847d", "#a2a79f", "#c6cbc3", "#ebf0e8"] },
+      "sheet": { "role": "surface", "displayName": "Sheet White", "canonical": "#ffffff", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "wash": { "role": "surface", "displayName": "Sheet Wash", "canonical": "#f5f6f3", "tonalRamp": ["#0b0b0a", "#252523", "#414240", "#61625f", "#828380", "#a4a5a3", "#c8c9c7", "#eeefec"] },
+      "rule": { "role": "line", "displayName": "Hairline Rule", "canonical": "#c9cec5", "tonalRamp": ["#090c07", "#232620", "#3f443c", "#5f635b", "#7f847c", "#a2a79e", "#c6cbc2", "#ebf0e7"] },
+      "control-line": { "role": "line", "displayName": "Control Line", "canonical": "#6f7985", "tonalRamp": ["#050c14", "#1d2630", "#3a434e", "#59626e", "#798390", "#9ca6b3", "#bfcad8", "#e4f0fd"] },
+      "ink": { "role": "ink", "displayName": "Ink", "canonical": "#1b1f24", "tonalRamp": ["#080b10", "#21252b", "#3e4248", "#5d6268", "#7e8389", "#a0a6ac", "#c4cad1", "#e9eff6"] },
+      "ink-muted": { "role": "ink", "displayName": "Muted Ink", "canonical": "#4a525c", "tonalRamp": ["#060c13", "#1f262e", "#3b434c", "#5a626c", "#7b838e", "#9da6b1", "#c1cad6", "#e6f0fc"] },
+      "ink-deep": { "role": "ink", "displayName": "Ink Deep", "canonical": "#000000", "tonalRamp": ["#0b0b0b", "#252525", "#424242", "#616161", "#828282", "#a5a5a5", "#c9c9c9", "#eeeeee"] },
+      "focus-blue": { "role": "focus", "displayName": "Focus Blue", "canonical": "#0b5cad", "tonalRamp": ["#000047", "#001c69", "#003e8d", "#1361b2", "#3b83d8", "#5fa8ff", "#83cdff", "#a8f3ff"] },
+      "brand-navy": { "role": "brand", "displayName": "Logo Navy", "canonical": "#00283d", "tonalRamp": ["#000d20", "#00283d", "#21465d", "#40667e", "#6188a1", "#83abc5", "#a6cfeb", "#cbf5ff"] },
+      "safety-red": { "role": "category", "displayName": "Safety Red", "canonical": "#b3261e", "tonalRamp": ["#3a0000", "#610000", "#880000", "#b0221b", "#d84c3f", "#ff7161", "#ff9784", "#ffbda8"] },
+      "maintenance-blue": { "role": "category", "displayName": "Maintenance Blue", "canonical": "#1d4f91", "tonalRamp": ["#00003c", "#001f5e", "#0c4081", "#2f61a5", "#5083ca", "#72a7f0", "#95ccff", "#baf2ff"] },
+      "quality-green": { "role": "category", "displayName": "Quality Green", "canonical": "#1f6b43", "tonalRamp": ["#001500", "#00320e", "#00512b", "#277149", "#4c9469", "#6fb88b", "#93ddae", "#b8ffd3"] },
+      "operations-graphite": { "role": "category", "displayName": "Operations Graphite", "canonical": "#3d4650", "tonalRamp": ["#050c14", "#1e262f", "#3a434d", "#59626d", "#79838f", "#9ca6b2", "#c0cad7", "#e5f0fc"] },
+      "warn-ink": { "role": "warning", "displayName": "Warning Ink", "canonical": "#6b4300", "tonalRamp": ["#200000", "#3f1a00", "#5f3800", "#81581e", "#a47942", "#c99c64", "#efc087", "#ffe5ac"] },
+      "warn-wash": { "role": "warning", "displayName": "Warning Wash", "canonical": "#fbf3dc", "tonalRamp": ["#100a00", "#2b2513", "#48422f", "#68614d", "#89826d", "#aca58f", "#d1c9b3", "#f6eed7"] },
+      "warn-line": { "role": "warning", "displayName": "Warning Line", "canonical": "#b88a1f", "tonalRamp": ["#220000", "#411800", "#623800", "#845800", "#a77a00", "#cc9d38", "#f1c160", "#ffe786"] },
+      "danger-ink": { "role": "danger", "displayName": "Danger Ink", "canonical": "#8a1c1c", "tonalRamp": ["#330000", "#580000", "#7e0b11", "#a43632", "#cb5a52", "#f37d73", "#ffa296", "#ffc7ba"] },
+      "danger-wash": { "role": "danger", "displayName": "Danger Wash", "canonical": "#f8e4e2", "tonalRamp": ["#130807", "#2f2120", "#4d3e3c", "#6d5d5b", "#8f7d7c", "#b3a09e", "#d7c4c2", "#fde9e7"] },
+      "danger-line": { "role": "danger", "displayName": "Danger Line", "canonical": "#c76a6a", "tonalRamp": ["#2d0000", "#500008", "#741f25", "#994143", "#bf6363", "#e68685", "#ffa9a8", "#ffcfcc"] }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "Masthead title only. Barlow Semi Condensed 700, clamped." },
+      "title": { "displayName": "Title", "purpose": "Panel titles such as Plant documents." },
+      "heading": { "displayName": "Heading", "purpose": "Category outline titles; Sources used shares the size at normal tracking." },
+      "chip-label": { "displayName": "Chip Label", "purpose": "Routed category chips." },
+      "status-label": { "displayName": "Status Label", "purpose": "Answer status label." },
+      "body": { "displayName": "Body", "purpose": "Base running text, lede, notices, empty states. Atkinson Hyperlegible 400." },
+      "answer": { "displayName": "Answer", "purpose": "Answer text on the reading sheet, capped at 66ch." },
+      "field-label": { "displayName": "Field Label", "purpose": "Form labels and the question prompt." },
+      "meta": { "displayName": "Meta", "purpose": "Tile passage counts, passage source lines, progress text, routed-to label (700)." },
+      "caption": { "displayName": "Caption", "purpose": "Upload hint." },
+      "line-number": { "displayName": "Line Number", "purpose": "Excerpt gutter only. The only use of the monospace stack." }
+    },
+    "shadows": [],
+    "motion": [
+      { "name": "ease-hang", "value": "cubic-bezier(0.2, 0.8, 0.2, 1)", "purpose": "Easing for the tile hang entrance." },
+      { "name": "tile-hang", "value": "220ms cubic-bezier(0.2, 0.8, 0.2, 1) both; translateY(-6px) and opacity 0 to rest", "purpose": "Single entrance animation: a source tile hangs into its category outline on mount. Removed under reduced motion." },
+      { "name": "progress-sweep", "value": "1.3s ease-in-out infinite; left -30% to 100%", "purpose": "Ink bar sweeping while a request runs. Reduced motion: static full-width bar at 40% opacity." }
+    ],
+    "breakpoints": [
+      { "name": "stack", "value": "860px", "purpose": "Workspace drops to one column; board above sheet." },
+      { "name": "narrow", "value": "480px", "purpose": "Container gutter 16px per side; panel padding 18px 16px; reading-sheet offset removed; excerpt gutter inset 8px." }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one ink-filled action on a surface. Hover to Ink Deep. Focus ring 3px Focus Blue with 3px offset.",
+      "html": "<button class='ds-btn-primary' type='button'>Ask</button>",
+      "css": ".ds-btn-primary { min-height: 44px; padding: 10px 18px; border: 1px solid var(--ink, #1b1f24); border-radius: 4px; background: var(--ink, #1b1f24); color: var(--sheet, #ffffff); font: inherit; font-weight: 600; cursor: pointer; } .ds-btn-primary:hover:not(:disabled) { background: #000000; } .ds-btn-primary:focus-visible { outline: 3px solid var(--focus, #0b5cad); outline-offset: 3px; } .ds-btn-primary:disabled { background: var(--sheet, #ffffff); border-color: var(--control-line, #6f7985); color: var(--ink-muted, #4a525c); cursor: not-allowed; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Ink outline on sheet white. Used for Try again on failures. Hover to Sheet Wash.",
+      "html": "<button class='ds-btn-secondary' type='button'>Try again</button>",
+      "css": ".ds-btn-secondary { min-height: 44px; padding: 10px 18px; border: 1px solid var(--ink, #1b1f24); border-radius: 4px; background: var(--sheet, #ffffff); color: var(--ink, #1b1f24); font: inherit; font-weight: 600; cursor: pointer; } .ds-btn-secondary:hover { background: var(--wash, #f5f6f3); } .ds-btn-secondary:focus-visible { outline: 3px solid var(--focus, #0b5cad); outline-offset: 3px; }"
+    },
+    {
+      "name": "Disabled Button",
+      "kind": "button",
+      "refersTo": "button-disabled",
+      "description": "Hollow mark: sheet fill, control-line stroke, muted ink text. Never a grey fill. The Ask action is in this state until a question is typed.",
+      "html": "<button class='ds-btn-disabled' type='button' disabled>Ask</button>",
+      "css": ".ds-btn-disabled { min-height: 44px; padding: 10px 18px; border: 1px solid var(--control-line, #6f7985); border-radius: 4px; background: var(--sheet, #ffffff); color: var(--ink-muted, #4a525c); font: inherit; font-weight: 600; cursor: not-allowed; }"
+    },
+    {
+      "name": "Category Outline",
+      "kind": "card",
+      "refersTo": null,
+      "description": "Painted 2px category outline on the board. Solid tiles hang inside it; an empty category is the same stroke, dashed.",
+      "html": "<ul class='ds-board'><li class='ds-outline ds-outline-safety'><h3 class='ds-outline-title'>Safety</h3><ul class='ds-tools'><li class='ds-tool'><span class='ds-tool-name'>Example lockout procedure</span><span class='ds-tool-meta'>14 passages</span></li></ul></li><li class='ds-outline ds-outline-operations is-empty'><h3 class='ds-outline-title'>Operations</h3></li></ul>",
+      "css": ".ds-board { display: grid; gap: 16px; margin: 0; padding: 0; list-style: none; } .ds-outline { --cat: #3d4650; padding: 12px 14px 14px; border: 2px solid var(--cat); border-radius: 4px; } .ds-outline.is-empty { border-style: dashed; } .ds-outline-safety { --cat: #b3261e; } .ds-outline-maintenance { --cat: #1d4f91; } .ds-outline-quality { --cat: #1f6b43; } .ds-outline-operations { --cat: #3d4650; } .ds-outline-title { margin: 0; color: var(--cat); font-family: 'Barlow Semi Condensed', ui-sans-serif, system-ui, sans-serif; font-size: 1.1875rem; font-weight: 700; line-height: 1.2; letter-spacing: 0.02em; } .ds-tools { display: grid; gap: 8px; margin: 10px 0 0; padding: 0; list-style: none; }"
+    },
+    {
+      "name": "Tool Tile",
+      "kind": "card",
+      "refersTo": null,
+      "description": "A source hung in its category: solid category fill, white text. Enters once with the hang animation.",
+      "html": "<span class='ds-tool' style='--cat: #1d4f91'><span class='ds-tool-name'>Example maintenance manual</span><span class='ds-tool-meta'>9 passages</span></span>",
+      "css": ".ds-tool { display: grid; gap: 2px; padding: 10px 12px; border-radius: 3px; background: var(--cat, #b3261e); color: #ffffff; animation: ds-hang 220ms cubic-bezier(0.2, 0.8, 0.2, 1) both; } .ds-tool-name { font-weight: 600; overflow-wrap: anywhere; } .ds-tool-meta { font-size: 0.9375rem; opacity: 0.92; font-variant-numeric: tabular-nums; } @keyframes ds-hang { from { transform: translateY(-6px); opacity: 0; } to { transform: none; opacity: 1; } } @media (prefers-reduced-motion: reduce) { .ds-tool { animation: none; } }"
+    },
+    {
+      "name": "Routed Chip",
+      "kind": "chip",
+      "refersTo": null,
+      "description": "Routed category shown after 'Routed to'. Sheet fill, 2px stroke and text in the category color.",
+      "html": "<span class='ds-chip' style='--cat: #1f6b43'>Quality</span>",
+      "css": ".ds-chip { display: inline-flex; align-items: center; min-height: 30px; padding: 0 10px; border: 2px solid var(--cat, #1b1f24); border-radius: 3px; background: var(--sheet, #ffffff); color: var(--cat, #1b1f24); font-family: 'Barlow Semi Condensed', ui-sans-serif, system-ui, sans-serif; font-size: 0.9375rem; font-weight: 700; white-space: nowrap; }"
+    },
+    {
+      "name": "Answer Sheet",
+      "kind": "card",
+      "refersTo": null,
+      "description": "White reading sheet under a 2px ink rule. Solid rule when the status is answered; dashed for insufficient-evidence, needs-clarification, blocked, out-of-scope, and failed (add class is-dashed).",
+      "html": "<div class='ds-result'><span class='ds-status'>Answered</span><p class='ds-answer-text'>Example answer text, set at reading size.</p></div>",
+      "css": ".ds-result { margin-top: 24px; padding-top: 20px; border-top: 2px solid var(--ink, #1b1f24); } .ds-result.is-dashed { border-top-style: dashed; } .ds-status { display: inline-flex; align-items: center; min-height: 30px; padding: 0 10px; border: 2px solid var(--ink, #1b1f24); border-radius: 3px; background: var(--sheet, #ffffff); color: var(--ink, #1b1f24); font-family: 'Barlow Semi Condensed', ui-sans-serif, system-ui, sans-serif; font-size: 1rem; font-weight: 700; } .ds-answer-text { max-width: 66ch; margin: 14px 0 0; font-size: 1.125rem; line-height: 1.6; white-space: pre-line; text-wrap: pretty; }"
+    },
+    {
+      "name": "Excerpt Passage",
+      "kind": "custom",
+      "refersTo": null,
+      "description": "Cited source with real line numbers: header on wash, gutter of monospace numbers divided by a 2px rule, text at reading size.",
+      "html": "<div class='ds-passage'><div class='ds-passage-head'><span class='ds-passage-name'>Example procedure</span><span class='ds-passage-meta'>Safety · Lines 12–13</span></div><div class='ds-excerpt'><div class='ds-excerpt-row'><span class='ds-gutter'>12</span><span class='ds-excerpt-text'>Example line of source text.</span></div><div class='ds-excerpt-row'><span class='ds-gutter'>13</span><span class='ds-excerpt-text'>Second example line.</span></div></div></div>",
+      "css": ".ds-passage { overflow: hidden; border: 1px solid #c9cec5; border-radius: 4px; background: #ffffff; } .ds-passage-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; padding: 10px 14px; border-bottom: 1px solid #c9cec5; background: #f5f6f3; } .ds-passage-name { font-weight: 700; overflow-wrap: anywhere; } .ds-passage-meta { color: #4a525c; font-size: 0.9375rem; font-variant-numeric: tabular-nums; } .ds-excerpt { max-height: 16rem; overflow: auto; padding: 10px 0; background: #ffffff; font-size: 1.0625rem; line-height: 1.6; } .ds-excerpt-row { display: grid; grid-template-columns: 3rem minmax(0, 1fr); } .ds-gutter { padding: 0 12px; color: #4a525c; font-family: ui-monospace, 'SF Mono', Menlo, Consolas, 'Liberation Mono', monospace; font-size: 0.875rem; line-height: 1.6; text-align: right; font-variant-numeric: tabular-nums; user-select: none; border-right: 2px solid #c9cec5; } .ds-excerpt-text { max-width: 72ch; padding: 0 14px; white-space: pre-wrap; overflow-wrap: anywhere; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Shadow Board",
+    "overview": "The workspace is a shadow board. Each document category is a painted outline on a pale perforated ground; sources hang inside their category as solid tools, and an empty category is a dashed outline, so the gap is visible. Answers are read on white sheets, in ink, at reading size. The system serves plant floor supervisors who need the right procedure fast and need to check cited lines against their source.\n\nDensity is controlled: two columns on desktop, a 360px board beside a fluid reading sheet, stacking below 860px. Nothing decorates. Color carries category and state only, and the dark-ink primary action is the only ink-filled control. The layout refuses the sidebar-and-cards dashboard default, and there is no hero.",
+    "keyCharacteristics": [
+      "Pale perforated board ground with white reading sheets",
+      "Painted 2px category outlines; dashed when the category is empty",
+      "Solid category-colored tiles for documents, with white text",
+      "One dark-ink primary action; secondary is an ink outline; disabled is a hollow mark",
+      "Corners at most 4px; no shadows",
+      "Body text at 17px or larger; the display face is for titles and labels only"
+    ],
+    "rules": [
+      { "name": "The Painted Outline Rule", "body": "Category color lives only in outlines, outline titles, tile fills, and routed chips. Color carries category and state, and nothing is decorated with it.", "section": "colors" },
+      { "name": "The Display Is Not Body Rule", "body": "Barlow carries titles, outline titles, chip labels, and status labels. Atkinson carries all running text, including document names and excerpts.", "section": "typography" },
+      { "name": "The Reading Size Rule", "body": "Answers and excerpts are set at 1.0625rem or larger. Helper text steps down to 0.875rem and never carries answer content.", "section": "typography" },
+      { "name": "The Flat Board Rule", "body": "Surfaces do not cast shadows. Sheets separate from the board by color and a hairline, never by blur.", "section": "elevation" },
+      { "name": "The Four-Pixel Rule", "body": "No corner exceeds 4px.", "section": "shapes" },
+      { "name": "The Printed Mark Rule", "body": "A control state is drawn, not shaded. Primary is a filled ink mark; disabled is a hollow mark with a Control Line stroke. Grey fills are not used for state.", "section": "components" },
+      { "name": "The Solid-or-Dashed Rule", "body": "The answer rule is solid when the status is answered and dashed for the five statuses that do not answer: insufficient-evidence, needs-clarification, blocked, out-of-scope, and failed.", "section": "components" }
+    ],
+    "dos": [
+      "Do paint each category as a 2px outline in its own color, and make it dashed when the category holds no documents.",
+      "Do use one ink-filled primary action per surface; use the ink-outline secondary for everything else.",
+      "Do draw disabled controls as hollow marks with a Control Line stroke.",
+      "Do set answers and excerpts at 1.0625rem or larger.",
+      "Do reserve the display face for titles, outline titles, chip labels, and status labels.",
+      "Do draw the answer rule solid when the status is answered, and dashed for the five non-answer statuses.",
+      "Do keep every corner at 4px or below."
+    ],
+    "donts": [
+      "Don't fill a disabled control with grey; use the hollow mark.",
+      "Don't use dashed lines for anything beyond empty categories, non-answer statuses, and the loader.",
+      "Don't add a second ink-filled action to a surface.",
+      "Don't apply category colors outside outlines, outline titles, tile fills, and routed chips.",
+      "Don't add shadows. The world has none.",
+      "Don't set running text in the display face, or use the monospace face for anything but line numbers.",
+      "Don't copy the 2.35rem reading-sheet offset, the 14px helper text, or the off-scale padding values as system values. They are one-offs."
+    ]
+  }
+}

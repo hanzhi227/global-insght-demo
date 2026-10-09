@@ -13,6 +13,7 @@
     "typecheck": "tsc --noEmit",
     "test": "bun test",
     "setup:vectors": "bun scripts/setup-vectors.ts",
+    "seed:corpus": "bun scripts/seed-corpus.ts",
     "check:providers": "bun scripts/check-providers.ts",
     "eval": "bun scripts/evaluate-local.ts",
     "eval:decisions": "bun scripts/evaluate-decisions.ts",

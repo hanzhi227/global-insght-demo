@@ -1,10 +1,11 @@
 import { categories, categorySchema, type Category, type Passage } from '../../contracts';
 import { AppError } from '../errors';
+import { requiredEnv } from '../config';
 import { embedTexts } from '../providers/openrouter';
 import { completedDocuments } from '../documents';
-import { getVectorStore, validateWorkspace, createMilvusClient, collectionName, collectionFields, modelIdentity, validateCollection, checkStatus, assertSearchReady, type VectorStore } from './vector-store';
+import { getVectorStore, validateWorkspace, createMilvusClient, collectionName, collectionFields, modelIdentity, validateCollection, checkStatus, assertSearchReady, type VectorReader } from './vector-store';
 export type RetrievalInput = { workspaceId: string; categories: Category[]; question: string };
-export function createRetriever(store: VectorStore, embed: typeof embedTexts) {
+export function createRetriever(store: VectorReader, embed: typeof embedTexts) {
  return async (input: RetrievalInput, signal?: AbortSignal): Promise<Passage[]> => {
   validateWorkspace(input.workspaceId);
   if (!Array.isArray(input.categories) || !input.categories.length || input.categories.length > categories.length || new Set(input.categories).size !== input.categories.length || input.categories.some(c => !categorySchema.safeParse(c).success) || typeof input.question !== 'string' || !input.question.trim() || input.question.length > 1000) throw new AppError('INVALID_RETRIEVAL', 'Invalid retrieval request.', 400, false);
@@ -35,7 +36,7 @@ export async function checkVectorReadiness(): Promise<void> {
  finally { await client.closeConnection(); }
 }
 export async function setupCollection(verifyOnly: boolean): Promise<void> {
- const client = createMilvusClient(); const collection = collectionName();
+ const client = createMilvusClient(verifyOnly ? undefined : requiredEnv('ZILLIZ_SEED_TOKEN')); const collection = collectionName();
  try {
   const exists = await client.hasCollection({ collection_name: collection }); checkStatus(exists);
   if (verifyOnly) {
