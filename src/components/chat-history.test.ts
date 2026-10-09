@@ -1,4 +1,5 @@
 import { expect, test } from 'bun:test';
+import { GET as legacyHistory } from '../app/api/history/route';
 import { CHAT_STORAGE_KEY, MAX_SAVED_CHATS, readChats, writeChats, type ChatTurn } from './chat-history';
 function store() {
   const values = new Map<string, string>();
@@ -28,6 +29,12 @@ test('corrupt, oversized, unknown-version and duplicate history is rejected with
     expect(() => readChats(storage)).toThrow();
     expect(storage.getItem(CHAT_STORAGE_KEY)).toBe(raw);
   }
+});
+test('the retired server history endpoint exposes no stored chats or cookies', async () => {
+  const response = legacyHistory();
+  expect(response.status).toBe(410);
+  expect(response.headers.get('set-cookie')).toBeNull();
+  expect((await response.json()).error.code).toBe('BROWSER_HISTORY_ONLY');
 });
 test('unavailable storage reports a failure instead of claiming chats are saved', () => {
   expect(() => readChats({ getItem: () => { throw new Error('Unavailable'); } })).toThrow();

@@ -1,10 +1,12 @@
 'use client';
 
-import { useEffect, useRef, useState, type FormEvent, type RefObject } from 'react';
+import Image from 'next/image';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode, type RefObject } from 'react';
 import { askResponseSchema, categoryLabels, type AskResponse } from '@/contracts';
 import { askQuestion, failureOf, type Failure } from './api-client';
 import { CHAT_STORAGE_KEY, MAX_SAVED_CHATS, readChats, writeChats, type ChatTurn } from './chat-history';
 import { Notice } from './notice';
+import { DocumentMenu } from './document-menu';
 import { SourcePassage } from './source-passage';
 
 type Phase =
@@ -20,7 +22,32 @@ const statusTones: Record<AskResponse['status'], 'neutral' | 'warn' | 'danger'> 
   answered: 'neutral', needs_clarification: 'warn', insufficient_evidence: 'warn', blocked: 'danger', out_of_scope: 'neutral'
 };
 
-export function QuestionPanel() {
+const sampleQuestions = [
+  { category: 'Safety', questions: [
+    'How long is a C-12 isolation authorization valid, and what happens at expiry?',
+    'How long must fire watch continue after hot work?'
+  ] },
+  { category: 'Maintenance', questions: [
+    'What preventive maintenance inspections apply to conveyor C-12?',
+    'What maximum pressure decay is allowed in the HP-4 pressure-hold test?'
+  ] },
+  { category: 'Quality', questions: [
+    'How many brackets are sampled at AX-210 final inspection, and how many failures are accepted?',
+    'What is the caliper calibration interval? Is there an overdue grace period?'
+  ] },
+  { category: 'Operations', questions: [
+    'What information belongs in the production shift handover?',
+    'How many AX-210 brackets may be in one production container, and may batches be mixed?'
+  ] },
+  { category: 'Across categories', questions: [
+    'What final inspection sample does Quality require for AX-210, and what container capacity does Operations allow?'
+  ] },
+  { category: 'Missing evidence', questions: [
+    'What is the lubrication interval for conveyor C-99?'
+  ] }
+];
+
+export function QuestionPanel({ children }: { children?: ReactNode }) {
   const [question, setQuestion] = useState('');
   const [phase, setPhase] = useState<Phase>({ kind: 'idle' });
   const [turns, setTurns] = useState<ChatTurn[]>([]);
@@ -68,7 +95,7 @@ export function QuestionPanel() {
   }
 
   function clearHistory() {
-    if (asking || !window.confirm('Clear saved chats from this browser? This cannot be undone.')) return;
+    if (inFlight.current || !window.confirm('Clear saved chats from this browser? This cannot be undone.')) return;
     try {
       window.localStorage.removeItem(CHAT_STORAGE_KEY);
       setTurns([]); setCanPersist(true); setStorageWarning(''); setPhase({ kind: 'idle' });
@@ -82,6 +109,46 @@ export function QuestionPanel() {
   }
 
   return (
+    <>
+      <div className="brand-bar">
+        <div className="container menu-bar">
+          <Image src="/brand/insight-global-logo.png" alt="Insight Global" width={1176} height={303} priority className="brand-logo" />
+          <nav aria-label="Main menu">
+            <details className="sample-questions">
+              <summary>Example questions</summary>
+              <div className="example-menu">
+                <p className="hint">Choose a question to fill the box, then select Ask.</p>
+                {sampleQuestions.map((group) => (
+                  <div key={group.category}>
+                    <h3>{group.category}</h3>
+                    <ul>
+                      {group.questions.map((sample) => (
+                        <li key={sample}>
+                          <button type="button" className="button secondary" disabled={asking || !loaded} onClick={(event) => {
+                            setQuestion(sample);
+                            event.currentTarget.closest('details')?.removeAttribute('open');
+                            document.getElementById('question')?.focus();
+                          }}>{sample}</button>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+            </details>
+          </nav>
+          <DocumentMenu>{children}</DocumentMenu>
+        </div>
+      </div>
+      <header className="masthead">
+        <div className="container">
+          <h1>Plant documentation assistant</h1>
+          <p className="lede">Ask about safety, maintenance, quality, or operations. Answers cite the relevant plant documents.</p>
+        </div>
+      </header>
+      <main className="container">
+        <p className="demo-notice" role="note">Demo only. Documents are fictional; answers are not approved for plant operations.</p>
+        <div className="workspace">
     <section className="panel questions" aria-labelledby="question-title">
       <div className="chat-heading">
         <h2 id="question-title" className="panel-title">Questions and answers</h2>
@@ -90,16 +157,6 @@ export function QuestionPanel() {
       <p className="hint">Last {MAX_SAVED_CHATS} chats saved in this browser only. Anyone using this browser can see them.</p>
       {storageWarning && <Notice tone="warn">{storageWarning}</Notice>}
       {!loaded && <p className="progress-line" role="status">Loading saved chats…</p>}
-      {turns.length > 0 && (
-        <ol className="chat-history" aria-label="Saved questions and answers">
-          {turns.map((turn, index) => (
-            <li key={turn.response.requestId} className="chat-turn">
-              <p className="chat-question"><strong>You asked</strong>{turn.question}</p>
-              <AnswerView response={turn.response} resultRef={index === turns.length - 1 ? resultRef : undefined} />
-            </li>
-          ))}
-        </ol>
-      )}
       <form className="ask" onSubmit={onSubmit}>
         <label htmlFor="question" className="field-label">What do you need to know?</label>
         <textarea id="question" name="question" rows={3} maxLength={1000} required disabled={asking || !loaded}
@@ -117,8 +174,23 @@ export function QuestionPanel() {
           ) : null}>{phase.failure.message}</Notice>
         </div>
       )}
-      {turns.length > 0 && <p className="hint">Saved answers may be out of date. Each question is answered independently.</p>}
+      {turns.length > 0 && (
+        <>
+          <ol className="chat-history" aria-label="Saved questions and answers, newest first">
+            {[...turns].reverse().map((turn, index) => (
+              <li key={turn.response.requestId} className="chat-turn">
+                <p className="chat-question"><strong>You asked</strong>{turn.question}</p>
+                <AnswerView response={turn.response} resultRef={phase.kind === 'answered' && index === 0 ? resultRef : undefined} />
+              </li>
+            ))}
+          </ol>
+          <p className="hint">Saved answers may be out of date. Each question is answered independently.</p>
+        </>
+      )}
     </section>
+        </div>
+      </main>
+    </>
   );
 }
 
@@ -138,8 +210,12 @@ function AnswerView({ response, resultRef }: { response: AskResponse; resultRef?
       )}
       {response.citations.length > 0 && (
         <details className="sources">
-          <summary className="sources-title">Sources used</summary>
-          <ol className="passages">{response.citations.map((passage) => <SourcePassage key={passage.id} passage={passage} />)}</ol>
+          <summary className="sources-title">
+            <svg className="sources-chevron" width="16" height="16" viewBox="0 0 16 16" fill="none" aria-hidden="true"><path d="m6 3 5 5-5 5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" /></svg>
+            <span>Sources used</span>
+            <span className="sources-count">{response.citations.length} {response.citations.length === 1 ? 'excerpt' : 'excerpts'}</span>
+          </summary>
+          <ol className="passages" aria-label="Cited source excerpts">{response.citations.map((passage, index) => <SourcePassage key={passage.id} passage={passage} number={index + 1} />)}</ol>
         </details>
       )}
     </div>

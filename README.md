@@ -21,7 +21,7 @@ bun run seed:corpus --verify  # runtime token; read-only corpus verification
 bun run dev
 ```
 
-The main screen is Q&A only; document administration is CLI-only until authenticated admins exist. Ask a question; no uploads are needed or allowed. `POST /api/documents` returns 405 even if called directly. Listing and questions use only the operator's shared corpus, never old browser-uploaded documents. The runtime store exposes read operations only.
+The main screen is Q&A only; document downloads are in the menu icon at the top right. Document administration is CLI-only until authenticated admins exist. Ask a question; no uploads are needed or allowed. `POST /api/documents` returns 405 even if called directly. Listing and questions use only the operator's shared corpus, never old browser-uploaded documents. The runtime store exposes read operations only.
 
 Startup/build never seeds documents. `/api/health`, document listing, and questions fail closed until all 12 documents of the expected corpus version are indexed. Existing unrelated vectors are left untouched.
 
@@ -46,7 +46,7 @@ This override exists only in the operator CLI. There is no automatic token fallb
 
 Northstar Precision Components, Cedar Falls Plant produces fictional AX-210 aluminum mounting brackets. `public/demo/{category}/` contains 12 controlled documents, three per category, roughly 800–975 words each. Directory categories are designated by the operator, not relabeled by the model. See the [corpus guide](evals/README.md).
 
-The shared namespace is derived from the source contents, filenames, categories, and chunk boundaries. Changing these creates a new corpus version instead of overwriting a previous one. Run the seed command once for the new checkout, verify it, and then deploy that same checkout. Repeating the command skips completed documents and repairs incomplete ingestion in that version. **Run one seed command at a time.** Old versions and old browser workspaces are retained; cleanup is a separate operator task.
+The shared namespace is derived from the source contents, filenames, categories, and chunk boundaries. Changing these creates a new corpus version instead of overwriting a previous one. Run the seed command once for the new checkout, verify it, and then deploy that same checkout. Repeating the command skips completed documents and repairs incomplete ingestion in that version. Version 2 uses deterministic document/passage IDs and upserts, so overlapping runs converge instead of creating duplicate imports; prefer one run to avoid duplicate embedding costs. The new namespace leaves old duplicate imports, old versions and old browser workspaces untouched. Cleanup is a separate operator task.
 
 The earlier short `public/demo/*.md` examples are retained for compatibility but are not seeded or retrieved. Browser visitors can download static Markdown but cannot change the repo or stored corpus through this app.
 
@@ -64,7 +64,7 @@ bun run check:providers # provider and collection smoke checks
 
 Live runs spend provider credits. Reports go to ignored `evals/results/`. `eval:api` verifies uploads are rejected and distinct visitors see identical documents; it does not insert or delete vectors. Use a test collection. See the [evaluation protocol](evals/README.md) and [observed results](evals/RESULTS.md). Local exact-COSINE retrieval is not a Zilliz ANN benchmark.
 
-Production validates citation IDs/quotes and requires input/output safety decisions. **These do not prove factual correctness.** Evaluate factual support offline before changing models, prompts, chunking, or retrieval. No runtime factual judge or separate reranking model is added.
+Production validates citation IDs/quotes, requires input/output safety decisions, and makes a separate evidence-verification call using the configured chat model before returning answered drafts. **These do not prove factual correctness.** Evaluate factual support offline before changing models, prompts, chunking, or retrieval. No separate reranking model is added.
 
 ## Railway
 

@@ -188,6 +188,141 @@ body {
 
 .chat-turn .result { margin-top: 12px; }
 
+.menu-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Menu tools hang on the navy rail. Each is a 2px sheet-white outline in the
+   display face. Hovered or open, it lifts off the rail as a white fill. Focus
+   is white, not focus blue, because blue on navy falls below 3:1. */
+
+.menu-bar > nav { display: flex; margin-left: auto; }
+
+.document-menu { position: relative; }
+.document-menu > summary,
+.sample-questions > summary {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 14px;
+  border: 2px solid var(--sheet);
+  border-radius: var(--radius);
+  background: transparent;
+  color: var(--sheet);
+  font-family: var(--display);
+  font-size: 1.1875rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  cursor: pointer;
+  list-style: none;
+}
+.document-menu > summary::-webkit-details-marker,
+.sample-questions > summary::-webkit-details-marker { display: none; }
+.document-menu > summary:hover,
+.document-menu[open] > summary,
+.sample-questions > summary:hover,
+.sample-questions[open] > summary {
+  background: var(--sheet);
+  color: var(--brand);
+}
+.document-menu > summary:focus-visible,
+.sample-questions > summary:focus-visible {
+  outline: 3px solid var(--sheet);
+  outline-offset: 3px;
+}
+.document-menu > summary svg { flex: none; }
+.document-menu-popup {
+  position: absolute;
+  z-index: 20;
+  top: calc(100% + 8px);
+  right: 0;
+  width: min(28rem, calc(100vw - 32px));
+  max-height: min(70vh, 640px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 24px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius);
+  background: var(--sheet);
+  color: var(--ink);
+  scrollbar-color: var(--control-line) var(--sheet);
+}
+
+.sample-questions { position: relative; }
+/* The chevron is drawn, not the native marker; it turns over when open */
+.sample-questions > summary::after {
+  content: '';
+  flex: none;
+  width: 8px;
+  height: 8px;
+  margin-left: 4px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: translateY(-2px) rotate(45deg);
+}
+.sample-questions[open] > summary::after {
+  transform: translateY(2px) rotate(-135deg);
+}
+.example-menu {
+  position: absolute;
+  z-index: 10;
+  right: 0;
+  width: min(560px, calc(100vw - 48px));
+  max-height: 70vh;
+  overflow-y: auto;
+  margin-top: 8px;
+  padding: 24px;
+  border: 1px solid var(--control-line);
+  border-radius: var(--radius);
+  background: var(--sheet);
+  color: var(--ink);
+}
+@media (max-width: 480px) {
+  .menu-bar { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .menu-bar > nav { width: 100%; margin-left: 0; grid-column: 1 / -1; grid-row: 2; }
+  .menu-bar > .document-menu { grid-column: 2; grid-row: 1; }
+  .sample-questions,
+  .sample-questions > summary { width: 100%; }
+  .sample-questions > summary { justify-content: space-between; }
+  .document-menu-popup { padding: 16px; }
+  .example-menu { left: 0; right: auto; width: 100%; padding: 16px; }
+}
+.source-documents a {
+  display: inline-block;
+  padding-block: 10px;
+  color: var(--ink);
+  text-underline-offset: 3px;
+  overflow-wrap: anywhere;
+}
+.source-documents a:hover { color: var(--focus); }
+.source-documents ul { padding-left: 24px; }
+
+.sample-questions h3,
+.source-documents h3 {
+  margin: 24px 0 8px;
+  font-family: var(--display);
+  font-size: 1.1875rem;
+}
+.sample-questions ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.sample-questions .button {
+  width: 100%;
+  text-align: left;
+  white-space: normal;
+}
+
 /* Board: the documents panel has no sheet of its own. Its upload form sits on
    a white sheet; its categories are painted outlines on the board. */
 
@@ -647,10 +782,36 @@ textarea::placeholder {
   line-height: 1.2;
 }
 
+.sources > .sources-title {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 48px;
+  margin: 0;
+  padding: 12px 0;
+  border-block: 1px solid var(--rule);
+  list-style: none;
+}
+
+.sources > .sources-title::-webkit-details-marker { display: none; }
+.sources > .sources-title:hover { background: var(--wash); }
+.sources-chevron { flex: none; }
+.sources[open] .sources-chevron { transform: rotate(90deg); }
+
+.sources-count {
+  margin-left: auto;
+  color: var(--ink-muted);
+  font-family: var(--font);
+  font-size: 0.9375rem;
+  font-weight: 400;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+
 .passages {
   display: grid;
-  gap: 14px;
-  margin: 0;
+  gap: 16px;
+  margin: 16px 0 0;
   padding: 0;
   list-style: none;
 }
@@ -664,12 +825,48 @@ textarea::placeholder {
 
 .passage-head {
   display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 4px 16px;
-  padding: 10px 14px;
+  align-items: baseline;
+  gap: 16px;
+  padding: 12px 16px;
   border-bottom: 1px solid var(--rule);
   background: var(--wash);
+}
+
+/* The whole header is the download link. The focus ring sits inside the
+   header because .passage clips anything outside it. */
+.passage-head:hover { background: var(--board); }
+.passage-link {
+  display: flex;
+  flex: 1 1 auto;
+  align-items: baseline;
+  gap: 16px;
+  min-width: 0;
+  color: var(--ink);
+  text-decoration: none;
+}
+.passage-link .passage-info { flex: 1 1 auto; }
+.passage-download {
+  flex: none;
+  align-self: center;
+  margin-left: auto;
+  color: var(--ink-muted);
+}
+.passage-link:hover .passage-name { text-decoration: underline; text-underline-offset: 3px; }
+.passage-link:hover .passage-download { color: var(--ink); }
+.passage-link:focus-visible { outline-offset: -4px; }
+
+.passage-number {
+  flex: none;
+  color: var(--ink-muted);
+  font-family: var(--display);
+  font-size: 0.9375rem;
+  font-weight: 700;
+}
+
+.passage-info {
+  display: grid;
+  gap: 4px;
+  min-width: 0;
 }
 
 .passage-name {
@@ -686,7 +883,7 @@ textarea::placeholder {
 .excerpt {
   max-height: 16rem;
   overflow: auto;
-  padding: 10px 0;
+  padding: 16px 0;
   background: var(--sheet);
   scrollbar-color: var(--control-line) transparent;
   font-size: 1.0625rem;
@@ -695,7 +892,7 @@ textarea::placeholder {
 
 .excerpt-row {
   display: grid;
-  grid-template-columns: 3rem minmax(0, 1fr);
+  grid-template-columns: minmax(3.5rem, max-content) minmax(0, 1fr);
 }
 
 .gutter {
@@ -703,7 +900,7 @@ textarea::placeholder {
   color: var(--ink-muted);
   font-family: var(--mono);
   font-size: 0.875rem;
-  line-height: 1.6;
+  line-height: calc(1.0625rem * 1.6);
   text-align: right;
   font-variant-numeric: tabular-nums;
   user-select: none;
@@ -736,9 +933,27 @@ textarea::placeholder {
     margin-top: 0;
   }
 
+  .passage-head {
+    flex-direction: column;
+    gap: 4px;
+    padding: 12px;
+  }
+
+  .passage-link {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+  }
+
+  .passage-download { align-self: flex-end; }
+
+  .sources > .sources-title { gap: 8px; }
+
   .gutter {
     padding-inline: 8px;
   }
+
+  .excerpt-text { padding-inline: 12px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

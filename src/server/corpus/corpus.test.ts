@@ -44,14 +44,11 @@ test('seeding is resumable, idempotent and excludes old user workspaces', async 
 test('incomplete current-version rows are repaired without touching other namespaces', async () => {
   const corpus = describeCorpus(await loadCorpus());
   const store = localStore();
-  const originalInsert = store.insertChunks;
-  store.insertChunks = async rows => { await originalInsert(rows); throw new Error('Interrupted'); };
-  // Simulate a failed cleanup too, leaving incomplete rows for the next operator run.
-  const originalDelete = store.deleteDocument;
-  store.deleteDocument = async () => { throw new Error('Offline'); };
+  const originalCommit = store.commitChunks;
+  store.commitChunks = async rows => { await originalCommit(rows.slice(0, 1)); throw new Error('Interrupted'); };
   await expect(seedCorpus(store, corpus, embed)).rejects.toThrow();
   await expect(curatedDocuments(store, corpus)).rejects.toMatchObject({ code: 'CORPUS_NOT_READY' });
-  store.insertChunks = originalInsert; store.deleteDocument = originalDelete;
+  store.commitChunks = originalCommit;
   expect(await seedCorpus(store, corpus, embed)).toEqual({ inserted: 12, total: 12 });
 });
 test('HTTP listing and questions use the same complete corpus for different visitors', async () => {
@@ -87,6 +84,17 @@ test('HTTP listing and questions use the same complete corpus for different visi
     if (previous.secret === undefined) delete process.env.SESSION_SIGNING_SECRET; else process.env.SESSION_SIGNING_SECRET = previous.secret;
     if (previous.origin === undefined) delete process.env.APP_ORIGIN; else process.env.APP_ORIGIN = previous.origin;
   }
+});
+test('overlapping seed runs upsert the same records without duplicates or deletion', async () => {
+  const corpus = describeCorpus(await loadCorpus());
+  const store = localStore();
+  const remove = spyOn(store, 'deleteDocument');
+  await Promise.all([seedCorpus(store, corpus, embed), seedCorpus(store, corpus, embed)]);
+  expect(await curatedDocuments(store, corpus)).toHaveLength(12);
+  const rows = await store.queryChunks(corpus.workspaceId);
+  expect(new Set(rows.map(row => row.chunkId)).size).toBe(rows.length);
+  expect(remove).not.toHaveBeenCalled();
+  expect(await seedCorpus(store, corpus, embed)).toEqual({ inserted: 0, total: 12 });
 });
 test('unexpected current-namespace data fails closed without deletion', async () => {
   const corpus = describeCorpus(await loadCorpus());

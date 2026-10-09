@@ -147,7 +147,7 @@ components:
 
 ## Q&A-only amendment
 
-The current user-approved main surface is one centered reading sheet, up to 960px wide, with Q&A and browser-saved turns. The document catalog/upload column is deprecated and absent from the main page. Preserve the existing brand bar, fonts, ink controls, source excerpts, category chips, and solid/dashed answer rules. History is chronological above the composer; each question stays paired with its response and has collapsible source citations. Clear history is secondary and confirmed, loading/storage errors are visible, and programmatically focused results retain a visible focus ring. This supersedes the historical two-column layout below, not the incumbent visual world. Admin upload UI is deferred until real authentication exists.
+The current user-approved main surface is one centered reading sheet, up to 960px wide, with Q&A and browser-saved turns. Document downloads live behind a 44px menu-icon trigger at the top right of the brand bar, never below the chat. Its category-grouped popover is right-aligned, viewport-bounded and scrollable, starts closed, closes on outside pointer/Escape, and returns keyboard focus to the trigger on Escape. Mobile keeps the document icon beside the logo while the example-question menu moves to the next row. The document catalog/upload column is deprecated and absent from the main page. Preserve the existing brand bar, fonts, ink controls, source excerpts, category chips, and solid/dashed answer rules. The composer stays first, with saved history newest-first beneath it; each question stays paired with its response and has collapsible source citations. Clear history is secondary and confirmed, loading/storage errors are visible, and programmatically focused results retain a visible focus ring. This supersedes the historical two-column layout below, not the incumbent visual world. Admin upload UI is deferred until real authentication exists.
 
 ## Overview
 
@@ -308,10 +308,11 @@ Lines carry the form: 2px painted category outlines; 1px Hairline Rule edges; a 
 - **Focus:** the sheet takes programmatic focus after an answer and has no outline. This is a build gap, not a pattern to copy.
 
 ### Excerpt Passage
-- **Card:** Sheet White, 1px Hairline Rule edge, 4px radius, clipped.
-- **Header:** Sheet Wash fill, 1px Hairline Rule divider, 10px 14px padding. Document name in body bold; source line in Meta size and Muted Ink.
-- **Excerpt:** a scrollable field, 16rem maximum height, 1.0625rem type at 1.6 line-height.
-- **Gutter:** a 3rem column of right-aligned monospace line numbers in Muted Ink, unselectable, with a 2px Hairline Rule divider. The text column is capped at 72ch and preserves line breaks.
+- **Disclosure:** “Sources used” remains collapsed by default, with a chevron and exact excerpt count. The full-width summary has a 48px minimum height, hairline rules, wash hover, and the shared keyboard focus ring.
+- **Card:** Sheet White, 1px Hairline Rule edge, 4px radius, clipped. Excerpts are spaced 16px apart.
+- **Header:** Sheet Wash fill, 1px Hairline Rule divider, 12px 16px padding. A numbered source label precedes the bold document name and stacked category/line metadata. Below 480px, the label stacks above the document information, with 12px padding.
+- **Excerpt:** a keyboard-focusable scrollable field, 16rem maximum height, 16px vertical padding, 1.0625rem type at 1.6 line-height. Exact text and blank lines are preserved.
+- **Gutter:** a minimum 3.5rem column of right-aligned monospace line numbers in Muted Ink, unselectable, with a 2px Hairline Rule divider. Numbers share the excerpt’s line height. The text column is capped at 72ch and preserves line breaks.
 
 ### Notices and Progress
 - **Failure notice:** Danger Wash fill, 1px Danger Line border, Danger Ink text, 4px radius, 12px 14px padding. Actions wrap to the right.

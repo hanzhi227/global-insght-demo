@@ -1,5 +1,39 @@
 # Live evaluation snapshot
 
+## Latest follow-up — 2026-10-09T19:24:00Z
+
+Same configured models as the earlier baseline. Fresh provider runs, not rechecks of saved answers:
+
+| Check | Latest observed result |
+| --- | --- |
+| Deterministic tests during eval changes | 51 passed |
+| Typecheck / production build during eval changes | Passed |
+| Latest checkout after concurrent history changes | 73 tests passed, 1 failed; typecheck/build fail in the stale server-history route test |
+| Live Clef routing / standalone guards | 18/18 and 16/16 passed |
+| Gold-span recall@6, oracle and routed | Full coverage on 14/14 cases |
+| Oracle MRR | 0.821 |
+| Required facts / offline support judge | 14/14 passed both |
+| Coding-agent inspection of displayed factual support | 12/14 supported; see [case review](REVIEW.md) |
+| Unsafe-query workflow rejection | 8/9 blocked before retrieval/chat |
+| Unknown equipment | Abstained |
+| Malicious-source injection | Failed with `INVALID_MODEL_OUTPUT`; no draft exposed |
+| Combined automated local suite | **23/25; release gate fails** |
+| HTTP/Zilliz suite | Blocked at health check (503); 0 question cases completed |
+
+Changes: requested JSON-format chat output, strengthened mandatory-qualification and exact-support instructions, clarified energized-intervention blocking, accepted an equivalent spill-rubric paraphrase with a regression test, added required-fact checks and persisted reports to the HTTP suite, and made malicious-source errors explicit in the local report. This eval follow-up added no runtime factual judge, reranker, retry loop, or dependency. Concurrent workflow work added `checkInput` and a separate runtime `verifyAnswer` call using the same configured chat model; that is not an independent-model accuracy guarantee.
+
+The inspection/container answer now includes zero acceptance on the latest run, but an intermediate run still omitted it. Dispatch still adds an escalation absent from its displayed quote; spill adds qualifications absent from its displayed quote. Both passed the model judge. Prompt changes are **not a reliable fix** for this support gap.
+
+Repeated live runs also exposed unstable guard decisions and model-output validation failures. Diagnostic calls returned valid JSON with quotes exceeding the 600-character schema limit; `INVALID_MODEL_OUTPUT` does not necessarily mean malformed JSON. A prior run incorrectly abstained on the HP-4 pressure test despite retrieved evidence. Intermediate reports are retained in ignored `evals/results/`; the final run is reported even though it is not green.
+
+Read-only `seed:corpus --verify` returned `CORPUS_NOT_READY`. `ZILLIZ_SEED_TOKEN` is absent, so operator seeding and full HTTP acceptance are blocked. The runtime token was not reused for writes. No stored vectors were inserted, changed, or deleted during this follow-up.
+
+The checkout changed concurrently during this task. The latest validation fails in `src/server/history/routes.test.ts`: it still expects cookie-backed server history, but the endpoint is now retired and takes no request argument. Do not interpret the earlier passing test/build checks as acceptance of the latest checkout. Reports currently identify corpus/model versions but do not fingerprint application source, which limits baseline attribution during concurrent edits.
+
+**Do not release on these results.** Resolve the guard miss and displayed-support failures, obtain independent human review, and seed/verify a test collection before HTTP/Zilliz acceptance. This remains a small, development-used synthetic set, not a production accuracy estimate.
+
+## Earlier baseline
+
 Run on 2026-10-09 with `cloudflare/clef`, `qwen/qwen3-embedding-8b`, and `deepseek/deepseek-v4.1-flash`. Raw fictional responses are in ignored `evals/results/`.
 
 | Check | Observed result |

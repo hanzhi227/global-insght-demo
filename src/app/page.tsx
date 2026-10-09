@@ -1,38 +1,27 @@
-import Image from 'next/image';
 import { QuestionPanel } from '@/components/question-panel';
+import { categories, categoryLabels } from '@/contracts';
+import { loadCorpus } from '@/server/corpus/source';
 
-export default function Page() {
+export default async function Page() {
+  const documents = await loadCorpus();
   return (
-    <>
-      <div className="brand-bar">
-        <div className="container">
-          <Image
-            src="/brand/insight-global-logo.png"
-            alt="Insight Global"
-            width={1176}
-            height={303}
-            priority
-            className="brand-logo"
-          />
+    <QuestionPanel>
+      <h2 className="panel-title">Source documents</h2>
+      <p className="hint">All 12 fictional demo documents. Download Markdown files to read the full procedures.</p>
+      {categories.map((category) => (
+        <div key={category}>
+          <h3>{categoryLabels[category]}</h3>
+          <ul>
+            {documents.filter((document) => document.category === category).map((document) => (
+              <li key={document.name}>
+                <a href={`/demo/${category}/${document.name}`} download={document.name}>
+                  {document.text.split('\n')[0].replace(/^#\s+/, '')}
+                </a>
+              </li>
+            ))}
+          </ul>
         </div>
-      </div>
-
-      <header className="masthead">
-        <div className="container">
-          <h1>Plant documentation assistant</h1>
-          <p className="lede">Ask about safety, maintenance, quality, or operations. Answers cite the relevant plant documents.</p>
-        </div>
-      </header>
-
-      <main className="container">
-        <p className="demo-notice" role="note">
-          Demo only. Documents are fictional; answers are not approved for plant operations.
-        </p>
-
-        <div className="workspace">
-          <QuestionPanel />
-        </div>
-      </main>
-    </>
+      ))}
+    </QuestionPanel>
   );
 }

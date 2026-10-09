@@ -1,15 +1,19 @@
 import { createHash } from 'node:crypto';
-import { completedDocuments, createDocumentService } from '../documents';
+import { completedDocuments } from '../documents';
 import { chunkText } from '../documents/chunking';
 import { AppError } from '../errors';
 import { embedTexts } from '../providers/openrouter';
 import { getVectorStore, type VectorReader, type VectorStore } from '../retrieval/vector-store';
 import { loadCorpus, type CorpusDocument } from './source';
 
+function corpusId(value: string): string {
+  const hash = createHash('sha256').update(value).digest('hex');
+  return `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+}
 export function describeCorpus(documents: CorpusDocument[]) {
   const sources = documents.map(doc => ({ ...doc, chunks: chunkText(doc.text) }));
-  const hash = createHash('sha256').update('curated-corpus-v1:').update(JSON.stringify(sources)).digest('hex');
-  const workspaceId = `${hash.slice(0, 8)}-${hash.slice(8, 12)}-4${hash.slice(13, 16)}-8${hash.slice(17, 20)}-${hash.slice(20, 32)}`;
+  const hash = createHash('sha256').update('curated-corpus-v2:').update(JSON.stringify(sources)).digest('hex');
+  const workspaceId = corpusId(hash);
   return { workspaceId, hash, documents: sources };
 }
 export type CuratedCorpus = ReturnType<typeof describeCorpus>;
@@ -43,13 +47,15 @@ export async function seedCorpus(store: VectorStore, corpus: CuratedCorpus, embe
   const expected = new Map(corpus.documents.map(doc => [doc.name, doc]));
   if (rows.some(row => !expected.has(row.documentName) || expected.get(row.documentName)!.category !== row.category) || existing.some(doc => doc.chunkCount !== expected.get(doc.name)!.chunks.length) || new Set(existing.map(doc => doc.name)).size !== existing.length)
     throw new AppError('CORPUS_CONFLICT', 'Unexpected data exists in the curated corpus namespace; no data was changed.', 409, false);
-  // shortcut: run one seed command at a time, add a distributed lock before concurrent operator seeding.
-  for (const id of new Set(rows.filter(row => !existing.some(doc => doc.id === row.documentId)).map(row => row.documentId))) await store.deleteDocument(corpus.workspaceId, id);
-  const service = createDocumentService(store, embed);
   let inserted = 0;
   for (const doc of corpus.documents) {
     if (existing.some(d => d.name === doc.name)) continue;
-    await service.ingest({ workspaceId: corpus.workspaceId, name: doc.name, category: doc.category, text: doc.text });
+    const documentId = corpusId(`${corpus.hash}:${doc.name}`);
+    const vectors: number[][] = [];
+    for (let i = 0; i < doc.chunks.length; i += 16) vectors.push(...await embed(doc.chunks.slice(i, i + 16).map(chunk => chunk.text)));
+    if (vectors.length !== doc.chunks.length) throw new AppError('INVALID_EMBEDDINGS', 'Invalid document vectors.');
+    // Identical source versions upsert identical IDs, so retries and overlapping seed runs cannot duplicate passages.
+    await store.commitChunks(doc.chunks.map((chunk, index) => ({ ...chunk, embedding: vectors[index], workspaceId: corpus.workspaceId, documentId, chunkId: corpusId(`${documentId}:${index}`), documentName: doc.name, category: doc.category, chunkIndex: index, expectedChunkCount: doc.chunks.length, isReady: true })));
     inserted++;
   }
   await curatedDocuments(store, corpus);
